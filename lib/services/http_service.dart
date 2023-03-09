@@ -5,8 +5,8 @@ import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 
 class HTTPService {
-  final dio = Dio();
-  final getIt = GetIt.instance;
+  final Dio dio = Dio();
+  final GetIt getIt = GetIt.instance;
 
   late String _baseUrl;
   late String _apiKey;
@@ -28,6 +28,7 @@ class HTTPService {
       );
       return response;
     } on DioError catch (e) {
+      // ignore: use_rethrow_when_possible
       throw e;
     }
   }

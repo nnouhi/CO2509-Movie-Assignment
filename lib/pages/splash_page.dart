@@ -1,11 +1,13 @@
 // Packages
 import 'dart:convert';
-
-import 'package:co2509_assignment/models/app_config.dart';
+import 'package:co2509_assignment/services/movie_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
+import '../models/app_config.dart';
+
+// Services
 import '../services/http_service.dart';
 
 class SplashPage extends StatefulWidget {
@@ -29,15 +31,22 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> _setup() async {
     // Create getit instance
-    final getIt = GetIt.instance;
+    final GetIt getIt = GetIt.instance;
 
     // Decode json file
-    final configFile = await rootBundle.loadString('assets/config/main.json');
-    final configData = jsonDecode(configFile);
+    final dynamic configFile =
+        await rootBundle.loadString('assets/config/main.json');
+    final dynamic configData = jsonDecode(configFile);
     String key = configData['API_KEY'];
     String apiUrl = configData['BASE_API_URL'];
     String imageUrL = configData['BASE_IMAGE_URL'];
 
+    // Register AppConfig as singleton
+    _registerSingletons(getIt, key, apiUrl, imageUrL);
+  }
+
+  void _registerSingletons(
+      GetIt getIt, String key, String apiUrl, String imageUrL) {
     // Register AppConfig as singleton
     getIt.registerSingleton<AppConfig>(AppConfig(
       apiKey: key,
@@ -46,7 +55,14 @@ class _SplashPageState extends State<SplashPage> {
     ));
 
     // Register HTTP Service as singleton
-    getIt.registerSingleton<HTTPService>(HTTPService());
+    getIt.registerSingleton<HTTPService>(
+      HTTPService(),
+    );
+
+    // Register Movie Service as singleton
+    getIt.registerSingleton<MovieService>(
+      MovieService(),
+    );
   }
 
   @override
