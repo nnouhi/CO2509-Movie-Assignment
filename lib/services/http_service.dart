@@ -17,15 +17,13 @@ class HTTPService {
     _apiKey = config.apiKey;
   }
 
-  Future<Response> getRequest(String endpoint) async {
+  Future<Response> getRequest(String endpoint, int page) async {
     try {
-      Response response = await dio.get(
-        _baseUrl + endpoint,
-        queryParameters: {
-          'api_key': _apiKey,
-          'language': 'en-US',
-        },
-      );
+      Response response = await dio.get('$_baseUrl$endpoint', queryParameters: {
+        'api_key': _apiKey,
+        'language': 'en-US',
+        'page': page,
+      });
       return response;
     } on DioError catch (e) {
       // ignore: use_rethrow_when_possible

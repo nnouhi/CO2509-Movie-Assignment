@@ -2,24 +2,41 @@ import 'dart:ui';
 // Packages
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 // Models
+import '../models/main_page_data.dart';
 import '../models/movie.dart';
 import '../models/search_category.dart';
-
 // Widgets
 import '../widgets/movie_box.dart';
+// Controller
+import '../controllers/main_page_data_controller.dart';
+
+final mainPageDataControllerProvider =
+    StateNotifierProvider<MainPageDataController, MainPageData>(
+  (ref) => MainPageDataController(),
+);
 
 class MainPage extends ConsumerWidget {
-  late double _viewportWidth;
-  late double _viewportHeight;
-  late TextEditingController _searchController;
+  double? _viewportWidth;
+  double? _viewportHeight;
+  TextEditingController? _searchController;
+
+  late MainPageDataController _mainPageDataController;
+  late MainPageData _mainPageData;
 
   @override
-  Widget build(BuildContext context, WidgetRef watch) {
+  Widget build(BuildContext context, WidgetRef ref) {
     _viewportWidth = MediaQuery.of(context).size.width;
     _viewportHeight = MediaQuery.of(context).size.height;
+
+    // Controller
+    _mainPageDataController =
+        ref.watch(mainPageDataControllerProvider.notifier);
+    // Data from the controller
+    _mainPageData = ref.watch(mainPageDataControllerProvider);
+
     _searchController = TextEditingController();
+
     return _buildUI();
   }
 
@@ -69,8 +86,8 @@ class MainPage extends ConsumerWidget {
   Widget _foregroundWidgets() {
     return Center(
       child: Container(
-        padding: EdgeInsets.fromLTRB(0, _viewportHeight * 0.02, 0, 0),
-        width: _viewportWidth * 0.95,
+        padding: EdgeInsets.fromLTRB(0, _viewportHeight! * 0.02, 0, 0),
+        width: _viewportWidth! * 0.95,
         child: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.end,
@@ -80,8 +97,8 @@ class MainPage extends ConsumerWidget {
             _searchBarWidget(),
             // Movies list view
             Container(
-              height: _viewportHeight * 0.83,
-              padding: EdgeInsets.symmetric(vertical: _viewportHeight * 0.01),
+              height: _viewportHeight! * 0.83,
+              padding: EdgeInsets.symmetric(vertical: _viewportHeight! * 0.01),
               child: _moviesListViewWidget(),
             )
           ],
@@ -92,7 +109,7 @@ class MainPage extends ConsumerWidget {
 
   Widget _searchBarWidget() {
     return Container(
-      height: _viewportHeight * 0.08,
+      height: _viewportHeight! * 0.08,
       decoration: BoxDecoration(
         color: Colors.black54,
         borderRadius: BorderRadius.circular(10.0),
@@ -113,8 +130,8 @@ class MainPage extends ConsumerWidget {
     final String _searchText = 'Search...';
 
     return Container(
-      width: _viewportWidth * 0.50,
-      height: _viewportHeight * 0.05,
+      width: _viewportWidth! * 0.50,
+      height: _viewportHeight! * 0.05,
       child: TextField(
         controller: _searchController,
         onSubmitted: (value) {
@@ -134,15 +151,15 @@ class MainPage extends ConsumerWidget {
   }
 
   Widget _categorySelectionWidget() {
-    String _selectedCategory = SearchCategory.popular;
+    String selectedCategory = SearchCategory.popular;
     return DropdownButton(
       dropdownColor: Colors.black38,
-      value: _selectedCategory,
+      value: selectedCategory,
       icon: const Icon(
         Icons.arrow_drop_down,
         color: Colors.white24,
       ),
-      onChanged: ((value) => _selectedCategory = value.toString()),
+      onChanged: ((value) => selectedCategory = value.toString()),
       items: [
         _getDropDownItems(SearchCategory.popular),
         _getDropDownItems(SearchCategory.upcoming),
@@ -162,42 +179,22 @@ class MainPage extends ConsumerWidget {
   }
 
   Widget _moviesListViewWidget() {
-    final List<Movie> movies = [];
-
-    for (int i = 0; i < 20; i++) {
-      movies.add(
-        Movie(
-            posterPath: "/dm06L9pxDOL9jNSK4Cb6y139rrG.jpg",
-            adult: false,
-            overview:
-                "From DC Comics comes the Suicide Squad, an antihero team of incarcerated supervillains who act as deniable assets for the United States government, undertaking high-risk black ops missions in exchange for commuted prison sentences.",
-            releaseDate: "2016-08-03",
-            genreIds: [14, 28, 80],
-            id: 197761,
-            originalTitle: "Suicide Squad",
-            originalLanguage: "en",
-            title: "Suicide Squad",
-            backdropPath: "/22z44LPkMyf5nyyXvv8qQLsbom.jpg",
-            popularity: 48.261451,
-            voteCount: 1466,
-            video: false,
-            voteAverage: 5.91),
-      );
-    }
-    if (movies.isNotEmpty) {
+    final List<Movie> movies = _mainPageData.displayedMovies!;
+    if (movies.length != 0) {
       return ListView.builder(
         itemCount: movies.length,
         itemBuilder: (BuildContext context, int index) {
           return Padding(
             padding: EdgeInsets.symmetric(
-                vertical: _viewportHeight * 0.02, horizontal: 0),
+                vertical: _viewportHeight! * 0.02, horizontal: 0),
             child: GestureDetector(
               onTap: () {
                 print('Movie Tapped');
               },
+              // Instantiate MovieBox
               child: MovieBox(
-                width: _viewportWidth * 0.85,
-                height: _viewportHeight * 0.20,
+                width: _viewportWidth! * 0.85,
+                height: _viewportHeight! * 0.20,
                 movie: movies[index],
               ),
             ),
