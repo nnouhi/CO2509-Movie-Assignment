@@ -1,5 +1,6 @@
 {
     "API_KEY": "83784ff5875ccb4e31847104f945362c",
     "BASE_API_URL": "https://api.themoviedb.org/3",
-    "BASE_IMAGE_URL": "https://image.tmdb.org/t/p/w500"
+    "BASE_IMAGE_URL": "https://image.tmdb.org/t/p/w500",
+    "IMAGE_NOT_FOUND": "https://media.istockphoto.com/id/1138179183/vector/no-image-available-sign.jpg?s=612x612&w=0&k=20&c=wJLkJNHgmT9v7bqmCs5uvLcRro437iyasa5RdgFGsoE="
 }
