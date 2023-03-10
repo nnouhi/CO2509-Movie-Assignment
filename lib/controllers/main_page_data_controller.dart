@@ -13,59 +13,60 @@ import 'package:get_it/get_it.dart';
 class MainPageDataController extends StateNotifier<MainPageData> {
   MainPageDataController([MainPageData? state])
       : super(state ?? MainPageData.initial()) {
-    _getAllMovies();
+    _getAllMovies(SelectedCategory.nowPlayingCategory, 1, [], '');
   }
 
   final MovieService movieService = GetIt.instance.get<MovieService>();
 
-  Future<void> _getAllMovies() async {
+  Future<void> _getAllMovies(
+    String? searchCategory,
+    int? page,
+    List<Movie>? displayedMovies,
+    String? queryText,
+  ) async {
     try {
       List<Movie> movies = [];
-      String stateSearchCategory = state.searchCaterogy!;
-      int stateCurrentPage = state.currentPage!;
-      String stateQueryText = state.queryText!;
+      String passedQueryText = queryText!;
+      String passedSearchCategory = searchCategory!;
+      int passedPage = page!;
 
       // Search query provided
-      if (stateQueryText.isNotEmpty) {
+      if (passedQueryText.isNotEmpty) {
         movies = await movieService.getSearchedMovies(
-          stateQueryText,
-          stateCurrentPage,
+          passedQueryText,
+          passedPage,
         );
       }
       // No search query provided
       else {
         movies = await movieService.getSelectedMovieCategory(
-          stateSearchCategory,
-          stateCurrentPage,
+          passedSearchCategory,
+          passedPage,
         );
       }
 
-      // Update state
+      // Update state to refresh main_page.dart
       state = state.copyWith(
-          displayedMovies: [...state.displayedMovies!, ...movies],
-          currentPage: state.currentPage! + 1);
-    } catch (e) {}
+        searchCaterogy: passedSearchCategory,
+        page: passedPage,
+        displayedMovies: movies,
+        queryText: passedQueryText,
+      );
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   void updateQueryText(String queryText) {
-    // Update state with new search category
-    state = state.copyWith(
-      searchCaterogy: SelectedCategory.none,
-      currentPage: 1,
-      displayedMovies: [],
-      searchText: queryText,
-    );
-    _getAllMovies();
+    _getAllMovies(SelectedCategory.none, 1, [], queryText);
   }
 
   // Called from main_page.dart when user changes the movies category
-  void updateMoviesGategory(String newSearchCategory) {
-    // Update state with new search category
-    state = state.copyWith(
-        searchCaterogy: newSearchCategory,
-        currentPage: 1,
-        displayedMovies: [],
-        searchText: '');
-    _getAllMovies();
+  void updateMoviesGategory(int? page, String? newSearchCategory) {
+    if (page! < 1) {
+      // TODO HANDLE THIS
+      return;
+    }
+    _getAllMovies(newSearchCategory, page, [], '');
   }
 }

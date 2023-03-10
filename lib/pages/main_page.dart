@@ -87,18 +87,22 @@ class MainPage extends ConsumerWidget {
   Widget _foregroundWidgets() {
     return Center(
       child: Container(
-        padding: EdgeInsets.fromLTRB(0, _viewportHeight! * 0.02, 0, 0),
+        // color: Colors.red,
+        padding: EdgeInsets.fromLTRB(0, _viewportHeight! * 0.08, 0, 0),
         width: _viewportWidth! * 0.95,
         child: Column(
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Search bar
             _searchBarWidget(),
+            // Page buttons
+            _navigationButtonsWidget(),
             // Movies list view
             Container(
-              height: _viewportHeight! * 0.83,
+              // color: Colors.black,
+              height: _viewportHeight! * 0.75,
               padding: EdgeInsets.symmetric(vertical: _viewportHeight! * 0.01),
               child: _moviesListViewWidget(),
             )
@@ -108,6 +112,47 @@ class MainPage extends ConsumerWidget {
     );
   }
 
+  // Page button widget
+  Widget _navigationButtonsWidget() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: _viewportHeight! * 0.01),
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _getElevatedButtons(
+              'Previous Page',
+              () => _mainPageDataController.updateMoviesGategory(
+                _mainPageData.page! - 1,
+                _mainPageData.searchCaterogy,
+              ),
+            ),
+            _getElevatedButtons(
+              'Next Page',
+              () => _mainPageDataController.updateMoviesGategory(
+                _mainPageData.page! + 1,
+                _mainPageData.searchCaterogy,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  ElevatedButton _getElevatedButtons(String displayText, Function() onPressed) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.black54,
+      ),
+      child: Text(displayText),
+    );
+  }
+
+  // Search bar widgets
   Widget _searchBarWidget() {
     return Container(
       height: _viewportHeight! * 0.08,
@@ -159,11 +204,17 @@ class MainPage extends ConsumerWidget {
         Icons.arrow_drop_down,
         color: Colors.white24,
       ),
-      onChanged: ((selectedCategory) =>
-          _mainPageDataController.updateMoviesGategory(
-            selectedCategory.toString(),
-          )),
+      onChanged: ((selectedCategory) => {
+            if (selectedCategory != SelectedCategory.none)
+              {
+                _mainPageDataController.updateMoviesGategory(
+                  1,
+                  selectedCategory,
+                )
+              }
+          }),
       items: [
+        _getDropDownItems(SelectedCategory.none),
         _getDropDownItems(SelectedCategory.nowPlayingCategory),
         _getDropDownItems(SelectedCategory.popularCategory),
         _getDropDownItems(SelectedCategory.topRatedCategory),
@@ -189,8 +240,7 @@ class MainPage extends ConsumerWidget {
         itemCount: movies.length,
         itemBuilder: (BuildContext context, int index) {
           return Padding(
-            padding: EdgeInsets.symmetric(
-                vertical: _viewportHeight! * 0.02, horizontal: 0),
+            padding: EdgeInsets.fromLTRB(0, 0, 0, _viewportHeight! * 0.05),
             child: GestureDetector(
               onTap: () {
                 print('Movie Tapped');

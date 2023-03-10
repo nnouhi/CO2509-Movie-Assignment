@@ -4,34 +4,34 @@ import 'selected_category.dart';
 
 class MainPageData {
   final List<Movie>? displayedMovies;
-  final int? currentPage;
+  final int? page;
   final String? searchCaterogy;
   final String? queryText;
 
   MainPageData({
     required this.displayedMovies,
-    required this.currentPage,
+    required this.page,
     required this.searchCaterogy,
     required this.queryText,
   });
 
   MainPageData.initial()
       : displayedMovies = [],
-        currentPage = 1,
+        page = 1,
         searchCaterogy = SelectedCategory.popularCategory, // default category
         queryText = '';
 
   MainPageData copyWith({
     List<Movie>? displayedMovies,
-    int? currentPage,
+    int? page,
     String? searchCaterogy,
-    String? searchText,
+    String? queryText,
   }) {
     return MainPageData(
       displayedMovies: displayedMovies ?? this.displayedMovies,
-      currentPage: currentPage ?? this.currentPage,
+      page: page ?? this.page,
       searchCaterogy: searchCaterogy ?? this.searchCaterogy,
-      queryText: searchText ?? this.queryText,
+      queryText: queryText ?? this.queryText,
     );
   }
 }
