@@ -8,6 +8,7 @@
 .buildlog/
 .history
 .svn/
+assets/config/main.json
 migrate_working_dir/
 
 # IntelliJ related
@@ -43,5 +44,3 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Config
-/assets/config/
