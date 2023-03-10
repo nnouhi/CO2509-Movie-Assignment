@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Models
 import '../models/main_page_data.dart';
 import '../models/movie.dart';
-import '../models/search_category.dart';
+import '../models/selected_category.dart';
 // Widgets
 import '../widgets/movie_box.dart';
 // Controller
@@ -164,9 +164,10 @@ class MainPage extends ConsumerWidget {
             selectedCategory.toString(),
           )),
       items: [
-        _getDropDownItems(SearchCategory.popular),
-        _getDropDownItems(SearchCategory.upcoming),
-        _getDropDownItems(SearchCategory.none),
+        _getDropDownItems(SelectedCategory.nowPlayingCategory),
+        _getDropDownItems(SelectedCategory.popularCategory),
+        _getDropDownItems(SelectedCategory.topRatedCategory),
+        _getDropDownItems(SelectedCategory.upcomingCategory),
       ],
     );
   }

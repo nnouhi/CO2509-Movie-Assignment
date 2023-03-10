@@ -1,5 +1,5 @@
 // Models
-import '../models/search_category.dart';
+import '../models/selected_category.dart';
 import '../models/movie.dart';
 import '../models/main_page_data.dart';
 
@@ -18,10 +18,39 @@ class MainPageDataController extends StateNotifier<MainPageData> {
 
   final MovieService movieService = GetIt.instance.get<MovieService>();
 
+  Future<void> _getAllMovies() async {
+    try {
+      List<Movie> movies = [];
+      String stateSearchCategory = state.searchCaterogy!;
+      int stateCurrentPage = state.currentPage!;
+      String stateQueryText = state.queryText!;
+
+      // Search query provided
+      if (stateQueryText.isNotEmpty) {
+        movies = await movieService.getSearchedMovies(
+          stateQueryText,
+          stateCurrentPage,
+        );
+      }
+      // No search query provided
+      else {
+        movies = await movieService.getSelectedMovieCategory(
+          stateSearchCategory,
+          stateCurrentPage,
+        );
+      }
+
+      // Update state
+      state = state.copyWith(
+          displayedMovies: [...state.displayedMovies!, ...movies],
+          currentPage: state.currentPage! + 1);
+    } catch (e) {}
+  }
+
   void updateQueryText(String queryText) {
     // Update state with new search category
     state = state.copyWith(
-      searchCaterogy: SearchCategory.none,
+      searchCaterogy: SelectedCategory.none,
       currentPage: 1,
       displayedMovies: [],
       searchText: queryText,
@@ -38,34 +67,5 @@ class MainPageDataController extends StateNotifier<MainPageData> {
         displayedMovies: [],
         searchText: '');
     _getAllMovies();
-  }
-
-  Future<void> _getAllMovies() async {
-    try {
-      List<Movie> movies = [];
-      String stateSearchCategory = state.searchCaterogy!;
-      int stateCurrentPage = state.currentPage!;
-      String stateQueryText = state.queryText!;
-
-      if (stateQueryText.isNotEmpty) {
-        movies = await movieService.getSearchedMovies(
-          stateQueryText,
-          stateCurrentPage,
-        );
-      } else {
-        if (stateSearchCategory == SearchCategory.popular) {
-          movies = await movieService.getPopularMovies(stateCurrentPage);
-        } else if (stateSearchCategory == SearchCategory.upcoming) {
-          movies = await movieService.getUpcomingMovies(stateCurrentPage);
-        } else {
-          //TODO: Implement search
-        }
-      }
-
-      // Update state
-      state = state.copyWith(
-          displayedMovies: [...state.displayedMovies!, ...movies],
-          currentPage: state.currentPage! + 1);
-    } catch (e) {}
   }
 }

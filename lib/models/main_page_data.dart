@@ -1,6 +1,6 @@
 // Models
 import '../models/movie.dart';
-import '../models/search_category.dart';
+import 'selected_category.dart';
 
 class MainPageData {
   final List<Movie>? displayedMovies;
@@ -18,7 +18,7 @@ class MainPageData {
   MainPageData.initial()
       : displayedMovies = [],
         currentPage = 1,
-        searchCaterogy = SearchCategory.popular,
+        searchCaterogy = SelectedCategory.popularCategory, // default category
         queryText = '';
 
   MainPageData copyWith({

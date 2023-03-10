@@ -17,11 +17,13 @@ class MovieService {
     httpService = getIt.get<HTTPService>();
   }
 
-  Future<List<Movie>> getPopularMovies(int page) async {
+  Future<List<Movie>> getSelectedMovieCategory(
+      String selectedCategory, int page) async {
     try {
       Map<String, dynamic> additionalQueryParams = {'page': page};
+      String endpoint = _getEndpoint(selectedCategory);
       Response? response = await httpService.getRequest(
-        Endpoints.popularMoviesEndpoint,
+        endpoint,
         additionalQueryParams,
       );
       // Success
@@ -29,34 +31,9 @@ class MovieService {
         Map data = response.data;
         // Call Movie.fromJson to obtain a new instane of Movie
         List<Movie> movies = [];
-        for (var movieData in data['results']) {
-          movies.add(Movie.fromJson(movieData));
-        }
-        return movies;
-      } else {
-        throw Exception(response.statusCode);
-      }
-    } catch (e) {
-      print(e);
-      return [];
-    }
-  }
-
-  Future<List<Movie>> getUpcomingMovies(int page) async {
-    try {
-      Map<String, dynamic> additionalQueryParams = {'page': page};
-      Response? response = await httpService.getRequest(
-        Endpoints.upcomingMoviesEndpoint,
-        additionalQueryParams,
-      );
-      // Success
-      if (response.statusCode! == 200) {
-        Map data = response.data;
-        // Call Movie.fromJson to obtain a new instane of Movie
-        List<Movie> movies = [];
-        for (var movieData in data['results']) {
-          movies.add(Movie.fromJson(movieData));
-        }
+        movies = data['results'].map<Movie>((movieData) {
+          return Movie.fromJson(movieData);
+        }).toList();
         return movies;
       } else {
         throw Exception(response.statusCode);
@@ -82,9 +59,9 @@ class MovieService {
         Map data = response.data;
         // Call Movie.fromJson to obtain a new instane of Movie
         List<Movie> movies = [];
-        for (var movieData in data['results']) {
-          movies.add(Movie.fromJson(movieData));
-        }
+        movies = data['results'].map<Movie>((movieData) {
+          return Movie.fromJson(movieData);
+        }).toList();
         return movies;
       } else {
         throw Exception(response.statusCode);
@@ -92,6 +69,21 @@ class MovieService {
     } catch (e) {
       print(e);
       return [];
+    }
+  }
+
+  String _getEndpoint(String selectedCategory) {
+    switch (selectedCategory) {
+      case 'Now Playing':
+        return Endpoints.nowPlayingMoviesEndpoint;
+      case 'Popular':
+        return Endpoints.popularMoviesEndpoint;
+      case 'Top Rated':
+        return Endpoints.topRatedPMoviesEndpoint;
+      case 'Upcoming':
+        return Endpoints.upcomingMoviesEndpoint;
+      default:
+        return '';
     }
   }
 }
