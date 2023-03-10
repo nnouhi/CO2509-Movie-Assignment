@@ -17,14 +17,29 @@ class HTTPService {
     _apiKey = config.apiKey;
   }
 
-  Future<Response> getRequest(String endpoint, int page) async {
+  Future<Response> getRequest(
+      String endpoint, Map<String, dynamic>? optionalQueryParams) async {
     try {
-      Response response = await dio.get('$_baseUrl$endpoint', queryParameters: {
+      String url = '$_baseUrl$endpoint';
+      Map<String, dynamic> requiredQueryParams = {
         'api_key': _apiKey,
         'language': 'en-US',
-        'page': page,
-      });
-      return response;
+      };
+
+      // Add any additional query params
+      if (optionalQueryParams != null) {
+        requiredQueryParams.addAll(optionalQueryParams);
+      }
+
+      Response response = await dio.get(
+        url,
+        queryParameters: requiredQueryParams,
+      );
+      if (response.statusCode == 200) {
+        return response;
+      } else {
+        throw Exception(response.statusCode);
+      }
     } on DioError catch (e) {
       // ignore: use_rethrow_when_possible
       throw e;

@@ -6,20 +6,20 @@ class MainPageData {
   final List<Movie>? displayedMovies;
   final int? currentPage;
   final String? searchCaterogy;
-  final String? searchText;
+  final String? queryText;
 
   MainPageData({
     required this.displayedMovies,
     required this.currentPage,
     required this.searchCaterogy,
-    required this.searchText,
+    required this.queryText,
   });
 
   MainPageData.initial()
       : displayedMovies = [],
         currentPage = 1,
         searchCaterogy = SearchCategory.popular,
-        searchText = '';
+        queryText = '';
 
   MainPageData copyWith({
     List<Movie>? displayedMovies,
@@ -31,7 +31,7 @@ class MainPageData {
       displayedMovies: displayedMovies ?? this.displayedMovies,
       currentPage: currentPage ?? this.currentPage,
       searchCaterogy: searchCaterogy ?? this.searchCaterogy,
-      searchText: searchText ?? this.searchText,
+      queryText: searchText ?? this.queryText,
     );
   }
 }

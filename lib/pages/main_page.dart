@@ -29,6 +29,7 @@ class MainPage extends ConsumerWidget {
     _viewportWidth = MediaQuery.of(context).size.width;
     _viewportHeight = MediaQuery.of(context).size.height;
 
+    // Monitor these providers
     // Controller
     _mainPageDataController =
         ref.watch(mainPageDataControllerProvider.notifier);
@@ -134,9 +135,9 @@ class MainPage extends ConsumerWidget {
       height: _viewportHeight! * 0.05,
       child: TextField(
         controller: _searchController,
-        onSubmitted: (value) {
-          print(value);
-        },
+        onSubmitted: (queryText) => _mainPageDataController.updateQueryText(
+          queryText,
+        ),
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
             focusedBorder: _border,
@@ -151,15 +152,17 @@ class MainPage extends ConsumerWidget {
   }
 
   Widget _categorySelectionWidget() {
-    String selectedCategory = SearchCategory.popular;
     return DropdownButton(
       dropdownColor: Colors.black38,
-      value: selectedCategory,
+      value: _mainPageData.searchCaterogy,
       icon: const Icon(
         Icons.arrow_drop_down,
         color: Colors.white24,
       ),
-      onChanged: ((value) => selectedCategory = value.toString()),
+      onChanged: ((selectedCategory) =>
+          _mainPageDataController.updateMoviesGategory(
+            selectedCategory.toString(),
+          )),
       items: [
         _getDropDownItems(SearchCategory.popular),
         _getDropDownItems(SearchCategory.upcoming),
