@@ -30,7 +30,7 @@ class HTTPService {
       if (optionalQueryParams != null) {
         requiredQueryParams.addAll(optionalQueryParams);
       }
-
+      // ISSUE Doesnt take endpoint into account
       Response response = await dio.get(
         url,
         queryParameters: requiredQueryParams,

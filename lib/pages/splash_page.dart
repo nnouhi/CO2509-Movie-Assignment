@@ -39,20 +39,29 @@ class _SplashPageState extends State<SplashPage> {
     final dynamic configData = jsonDecode(configFile);
     String key = configData['API_KEY'];
     String apiUrl = configData['BASE_API_URL'];
-    String imageUrL = configData['BASE_IMAGE_URL'];
+    String imageUrl = configData['BASE_IMAGE_URL'];
+    String imageNotFoundUrl = configData['IMAGE_NOT_FOUND'];
 
     // Register AppConfig as singleton
-    _registerSingletons(getIt, key, apiUrl, imageUrL);
+    _registerSingletons(getIt, key, apiUrl, imageUrl, imageNotFoundUrl);
   }
 
   void _registerSingletons(
-      GetIt getIt, String key, String apiUrl, String imageUrL) {
+    GetIt getIt,
+    String key,
+    String apiUrl,
+    String imageUrL,
+    String imageNotFoundUrl,
+  ) {
     // Register AppConfig as singleton
-    getIt.registerSingleton<AppConfig>(AppConfig(
-      apiKey: key,
-      baseApiUrl: apiUrl,
-      baseImageUrl: imageUrL,
-    ));
+    getIt.registerSingleton<AppConfig>(
+      AppConfig(
+        apiKey: key,
+        baseApiUrl: apiUrl,
+        baseImageUrl: imageUrL,
+        imageNotFoundUrl: imageNotFoundUrl,
+      ),
+    );
 
     // Register HTTP Service as singleton
     getIt.registerSingleton<HTTPService>(

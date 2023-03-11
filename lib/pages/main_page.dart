@@ -124,9 +124,20 @@ class MainPage extends ConsumerWidget {
           children: [
             _getElevatedButtons(
               'Previous Page',
-              () => _mainPageDataController.updateMoviesGategory(
-                _mainPageData.page! - 1,
-                _mainPageData.searchCaterogy,
+              () => {
+                _mainPageDataController.updateMoviesGategory(
+                  _mainPageData.page! - 1,
+                  _mainPageData.searchCaterogy,
+                  true,
+                ),
+              },
+            ),
+            Text(
+              'Page: ${_mainPageData.page} / ${_mainPageData.totalPages}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18.0,
+                fontWeight: FontWeight.w400,
               ),
             ),
             _getElevatedButtons(
@@ -134,6 +145,7 @@ class MainPage extends ConsumerWidget {
               () => _mainPageDataController.updateMoviesGategory(
                 _mainPageData.page! + 1,
                 _mainPageData.searchCaterogy,
+                true,
               ),
             ),
           ],
@@ -180,9 +192,14 @@ class MainPage extends ConsumerWidget {
       height: _viewportHeight! * 0.05,
       child: TextField(
         controller: _searchController,
-        onSubmitted: (queryText) => _mainPageDataController.updateQueryText(
-          queryText,
-        ),
+        onSubmitted: (queryText) => {
+          if (queryText.isNotEmpty)
+            {
+              _mainPageDataController.updateQueryText(
+                queryText,
+              )
+            }
+        },
         style: const TextStyle(color: Colors.white),
         decoration: InputDecoration(
             focusedBorder: _border,
@@ -210,6 +227,7 @@ class MainPage extends ConsumerWidget {
                 _mainPageDataController.updateMoviesGategory(
                   1,
                   selectedCategory,
+                  false,
                 )
               }
           }),

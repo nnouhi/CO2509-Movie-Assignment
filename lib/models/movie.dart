@@ -59,6 +59,11 @@ class Movie {
   String getPosterUrl() {
     final GetIt getIt = GetIt.instance;
     final AppConfig appConfig = getIt.get<AppConfig>();
-    return '${appConfig.baseImageUrl}${posterPath}';
+    // Handle cases where posterPath is null
+    if (posterPath == null) {
+      return appConfig.imageNotFoundUrl;
+    } else {
+      return '${appConfig.baseImageUrl}${posterPath}';
+    }
   }
 }
