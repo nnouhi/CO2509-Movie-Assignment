@@ -56,6 +56,7 @@ class MovieService {
         'query': query,
         'page': page,
       };
+
       Response response = await httpService.getRequest(
         Endpoints.searchMoviedEndpoint,
         additionalQueryParams,

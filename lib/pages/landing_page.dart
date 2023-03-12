@@ -89,7 +89,7 @@ class LandingPage extends ConsumerWidget {
           children: [
             _titleWidget(),
             _buttonsWidget(),
-            _optionWidget(),
+            _optionsWidget(),
           ],
         ),
       ),
@@ -167,14 +167,14 @@ class LandingPage extends ConsumerWidget {
     );
   }
 
-  Widget _optionWidget() {
+  Widget _optionsWidget() {
     return Container(
       // color: Colors.blue,
       width: _viewportWidth * 0.95,
       margin: EdgeInsets.fromLTRB(0, _viewportHeight * 0.1, 0, 0),
       child: Column(
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Text(
@@ -190,7 +190,44 @@ class LandingPage extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _themeSelectionWidget(),
+              Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: _viewportHeight * 0.03,
+                  ),
+                  const Text(
+                    'Application Theme',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  _themeSelectionWidget(),
+                ],
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: _viewportHeight * 0.03, // <-- SEE HERE
+                  ),
+                  const Text(
+                    'Application Language',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  _languageSelectionWidget(),
+                ],
+              )
             ],
           ),
         ],
@@ -211,6 +248,25 @@ class LandingPage extends ConsumerWidget {
       items: [
         _commonWidgets.getDropDownItems('Dark Theme'),
         _commonWidgets.getDropDownItems('Light Theme'),
+      ],
+    );
+  }
+
+  Widget _languageSelectionWidget() {
+    return DropdownButton(
+      dropdownColor: Colors.black38,
+      value: _landingPageData.appLanguage,
+      icon: const Icon(
+        Icons.arrow_drop_down,
+      ),
+      onChanged: ((selectedLanguage) => _landingPageDataController
+          .updateAppLanguage(selectedLanguage.toString())),
+      items: [
+        _commonWidgets.getDropDownItems('English'),
+        _commonWidgets.getDropDownItems('Ελληνικά'),
+        _commonWidgets.getDropDownItems('Русский'),
+        _commonWidgets.getDropDownItems('Türkçe'),
+        _commonWidgets.getDropDownItems('Français'),
       ],
     );
   }

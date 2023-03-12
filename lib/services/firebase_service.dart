@@ -13,6 +13,34 @@ class FirebaseService {
     // });
   }
 
+  // App Language
+  void setOnlineAppLanguage(String language, Function appThemeCallback) {
+    _databaseReference
+        .child('app-preferences')
+        .child('Language')
+        .set(language)
+        .then(
+          (value) => appThemeCallback(),
+        )
+        .catchError(
+          (error) => print('Error: $error'),
+        );
+  }
+
+  Future<String> getOnlineAppLanguage() async {
+    try {
+      DataSnapshot snapshot = await _databaseReference
+          .child('app-preferences')
+          .child('Language')
+          .get();
+      return snapshot.value as String;
+    } catch (error) {
+      print('Error: $error');
+      return 'English'; // Or any other default value you want to return on error
+    }
+  }
+
+  // App Theme
   void setOnlineAppTheme(bool isDarkTheme, Function appThemeCallback) {
     _databaseReference
         .child('app-preferences')

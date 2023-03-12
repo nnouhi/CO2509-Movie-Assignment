@@ -85,6 +85,11 @@ class _SetUpPageState extends State<SetUpPage> {
       ),
     );
 
+    // Register Firebase Service as singleton
+    getIt.registerSingleton<FirebaseService>(
+      FirebaseService(),
+    );
+
     // Register HTTP Service as singleton
     getIt.registerSingleton<HTTPService>(
       HTTPService(),
@@ -98,11 +103,6 @@ class _SetUpPageState extends State<SetUpPage> {
     // Register Common Service as singleton
     getIt.registerSingleton<CommonWidgets>(
       CommonWidgets(),
-    );
-
-    // Register Firebase Service as singleton
-    getIt.registerSingleton<FirebaseService>(
-      FirebaseService(),
     );
   }
 

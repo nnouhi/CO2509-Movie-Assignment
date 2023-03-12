@@ -1,3 +1,5 @@
+import 'package:co2509_assignment/services/firebase_service.dart';
+
 import '../models/app_config.dart';
 
 // Packages
@@ -10,9 +12,11 @@ class HTTPService {
 
   late String _baseUrl;
   late String _apiKey;
+  late FirebaseService _firebaseService;
 
   HTTPService() {
     AppConfig config = getIt<AppConfig>();
+    _firebaseService = getIt<FirebaseService>();
     _baseUrl = config.baseApiUrl;
     _apiKey = config.apiKey;
   }
@@ -20,10 +24,11 @@ class HTTPService {
   Future<Response> getRequest(
       String endpoint, Map<String, dynamic>? optionalQueryParams) async {
     try {
+      String? fetchLanguage = await _firebaseService.getOnlineAppLanguage();
       String url = '$_baseUrl$endpoint';
       Map<String, dynamic> requiredQueryParams = {
         'api_key': _apiKey,
-        'language': 'en-US',
+        'language': _getCodeISO(fetchLanguage),
       };
 
       // Add any additional query params
@@ -44,5 +49,22 @@ class HTTPService {
       // ignore: use_rethrow_when_possible
       throw e;
     }
+  }
+
+  String _getCodeISO(String appLanguage) {
+    switch (appLanguage) {
+      case 'English':
+        return 'en-US';
+      case 'Ελληνικά':
+        return 'el-GR';
+      case 'Русский':
+        return 'ru-RU';
+      case 'Türkçe':
+        return 'tr-TR';
+      case 'Français':
+        return 'fr-FR';
+    }
+
+    return 'English';
   }
 }
