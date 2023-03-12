@@ -10,6 +10,8 @@
 .svn/
 migrate_working_dir/
 assets/config/main.json
+android/app/google-services.json
+
 # IntelliJ related
 *.iml
 *.ipr

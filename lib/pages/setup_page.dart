@@ -1,11 +1,13 @@
 import 'dart:convert';
 // Packages
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 // Models
 import '../models/app_config.dart';
 // Services
+import '../services/firebase_service.dart';
 import '../services/http_service.dart';
 import '../services/movie_service.dart';
 // Widgets
@@ -51,7 +53,10 @@ class _SetUpPageState extends State<SetUpPage> {
         MediaQueryData.fromWindow(WidgetsBinding.instance.window);
     late double width = mediaQueryData.size.width;
     late double height = mediaQueryData.size.height;
-    print("WIDTH: $width HEIGHT: $height");
+
+    // Initialize Firebase
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
 
     // Register AppConfig as singleton
     _registerSingletons(
@@ -93,6 +98,11 @@ class _SetUpPageState extends State<SetUpPage> {
     // Register Common Service as singleton
     getIt.registerSingleton<CommonWidgets>(
       CommonWidgets(),
+    );
+
+    // Register Firebase Service as singleton
+    getIt.registerSingleton<FirebaseService>(
+      FirebaseService(),
     );
   }
 
