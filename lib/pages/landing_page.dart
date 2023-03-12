@@ -1,5 +1,10 @@
 import 'dart:ui';
+// Controllers
+import '../controllers/landing_page_data_controller.dart';
+// Models
+import '../models/landing_page_data.dart';
 // Packages
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 // Widgets
@@ -7,21 +12,42 @@ import '../widgets/common_widgets.dart';
 // Pages
 import '../pages/main_page.dart';
 
-class LandingPage extends StatelessWidget {
+final landingPageDataControllerProvider =
+    StateNotifierProvider<LandingPageDataController, LandingPageData>(
+  (ref) => LandingPageDataController(),
+);
+
+class LandingPage extends ConsumerWidget {
   late CommonWidgets _commonWidgets;
+
+  late LandingPageDataController _landingPageDataController;
+  late LandingPageData _landingPageData;
+
   late double _viewportWidth;
   late double _viewportHeight;
 
+  late BuildContext _context;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     _commonWidgets = GetIt.instance.get<CommonWidgets>();
     _viewportWidth = MediaQuery.of(context).size.width;
     _viewportHeight = MediaQuery.of(context).size.height;
+    _context = context;
+
+    // Monitor these providers
+    // Controller
+    _landingPageDataController =
+        ref.watch(landingPageDataControllerProvider.notifier);
+    // Data from the controller
+    _landingPageData = ref.watch(landingPageDataControllerProvider);
+
     return _commonWidgets.commonUI(
       _viewportWidth,
       _viewportHeight,
       _backgroundWidget(),
-      _foregroundWidgets(context),
+      _foregroundWidgets(),
+      _landingPageData.isDarkTheme!,
     );
   }
 
@@ -50,11 +76,11 @@ class LandingPage extends StatelessWidget {
     );
   }
 
-  Widget _foregroundWidgets(BuildContext context) {
+  Widget _foregroundWidgets() {
     return Center(
       child: Container(
         // color: Colors.red,
-        padding: EdgeInsets.fromLTRB(0, _viewportHeight * 0.3, 0, 0),
+        padding: EdgeInsets.fromLTRB(0, _viewportHeight * 0.27, 0, 0),
         width: _viewportWidth * 0.95,
         child: Column(
           mainAxisSize: MainAxisSize.max,
@@ -62,7 +88,8 @@ class LandingPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _titleWidget(),
-            _buttonsContainer(context),
+            _buttonsWidget(),
+            _optionWidget(),
           ],
         ),
       ),
@@ -83,7 +110,6 @@ class LandingPage extends StatelessWidget {
             'Welcome to All4Movies',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white,
               fontSize: 30,
               fontWeight: FontWeight.bold,
             ),
@@ -93,8 +119,8 @@ class LandingPage extends StatelessWidget {
             'Click any of the below buttons to get started',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white,
-              fontSize: 25,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],
@@ -102,7 +128,7 @@ class LandingPage extends StatelessWidget {
     );
   }
 
-  Widget _buttonsContainer(BuildContext context) {
+  Widget _buttonsWidget() {
     return Container(
       // color: Colors.yellow,
       width: _viewportWidth * 0.95,
@@ -112,16 +138,23 @@ class LandingPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _commonWidgets.getElevatedButtons(
-            'Options Page',
-            () => print('Option Page clicked'),
+          const Text(
+            'Browse Our Pages',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           _commonWidgets.getElevatedButtons(
             'Movie Page',
             () => Navigator.push(
-              context,
+              _context,
               MaterialPageRoute(
-                builder: (context) => MainPage(),
+                builder: (context) => MainPage(
+                  key: UniqueKey(),
+                  isDarkTheme: _landingPageData.isDarkTheme!,
+                ),
               ),
             ),
           ),
@@ -131,6 +164,54 @@ class LandingPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _optionWidget() {
+    return Container(
+      // color: Colors.blue,
+      width: _viewportWidth * 0.95,
+      margin: EdgeInsets.fromLTRB(0, _viewportHeight * 0.1, 0, 0),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text(
+            'App Preferences',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _themeSelectionWidget(),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _themeSelectionWidget() {
+    return DropdownButton(
+      dropdownColor: Colors.black38,
+      value: (_landingPageData.isDarkTheme!) ? 'Dark Theme' : 'Light Theme',
+      icon: const Icon(
+        Icons.arrow_drop_down,
+      ),
+      onChanged: ((selectedTheme) => _landingPageDataController.updateAppTheme(
+            selectedTheme.toString(),
+          )),
+      items: [
+        _commonWidgets.getDropDownItems('Dark Theme'),
+        _commonWidgets.getDropDownItems('Light Theme'),
+      ],
     );
   }
 }

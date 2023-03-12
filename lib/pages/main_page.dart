@@ -18,6 +18,9 @@ final mainPageDataControllerProvider =
 );
 
 class MainPage extends ConsumerWidget {
+  MainPage({Key? key, required this.isDarkTheme}) : super(key: key);
+
+  final bool? isDarkTheme;
   double? _viewportWidth;
   double? _viewportHeight;
   TextEditingController? _searchController;
@@ -49,6 +52,7 @@ class MainPage extends ConsumerWidget {
       _viewportHeight!,
       _backgroundWidget(),
       _foregroundWidgets(),
+      isDarkTheme!,
     );
   }
 
@@ -130,7 +134,6 @@ class MainPage extends ConsumerWidget {
             Text(
               'Page: ${_mainPageData.page} / ${_mainPageData.totalPages}',
               style: const TextStyle(
-                color: Colors.white,
                 fontSize: 18.0,
                 fontWeight: FontWeight.w400,
               ),
@@ -231,22 +234,12 @@ class MainPage extends ConsumerWidget {
               }
           }),
       items: [
-        _getDropDownItems(SelectedCategory.none),
-        _getDropDownItems(SelectedCategory.nowPlayingCategory),
-        _getDropDownItems(SelectedCategory.popularCategory),
-        _getDropDownItems(SelectedCategory.topRatedCategory),
-        _getDropDownItems(SelectedCategory.upcomingCategory),
+        _commonWidgets.getDropDownItems(SelectedCategory.none),
+        _commonWidgets.getDropDownItems(SelectedCategory.nowPlayingCategory),
+        _commonWidgets.getDropDownItems(SelectedCategory.popularCategory),
+        _commonWidgets.getDropDownItems(SelectedCategory.topRatedCategory),
+        _commonWidgets.getDropDownItems(SelectedCategory.upcomingCategory),
       ],
-    );
-  }
-
-  DropdownMenuItem _getDropDownItems(String value) {
-    return DropdownMenuItem(
-      value: value,
-      child: Text(
-        value,
-        style: const TextStyle(color: Colors.white),
-      ),
     );
   }
 

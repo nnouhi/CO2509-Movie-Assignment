@@ -16,18 +16,31 @@ class CommonWidgets {
     double height,
     Widget backgroundWidget,
     Widget foregroundWidget,
+    bool isDarkTheme,
   ) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.black,
-      body: Container(
-        width: width,
-        height: height,
-        child: Stack(
-          children: [
-            backgroundWidget,
-            foregroundWidget,
-          ],
+    return MaterialApp(
+      title: 'All4Movies',
+      theme: ThemeData(
+          brightness: Brightness.light,
+          primaryColor: Colors.red,
+          primarySwatch: Colors.red),
+      darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          primaryColor: Colors.red,
+          primarySwatch: Colors.red),
+      themeMode: (isDarkTheme) ? ThemeMode.dark : ThemeMode.light,
+      home: Scaffold(
+        resizeToAvoidBottomInset: false,
+        // backgroundColor: Colors.black,
+        body: Container(
+          width: width,
+          height: height,
+          child: Stack(
+            children: [
+              // backgroundWidget,
+              foregroundWidget,
+            ],
+          ),
         ),
       ),
     );
@@ -37,9 +50,19 @@ class CommonWidgets {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.black54,
-      ),
+          // backgroundColor: Colors.black54,
+          ),
       child: Text(displayText),
+    );
+  }
+
+  DropdownMenuItem getDropDownItems(String value) {
+    return DropdownMenuItem(
+      value: value,
+      child: Text(
+        value,
+        // style: const TextStyle(color: Colors.white),
+      ),
     );
   }
 
@@ -99,7 +122,6 @@ class CommonWidgets {
                   _movie.title.toString(),
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: Colors.white,
                     fontSize: 20.0,
                     fontWeight: FontWeight.w400,
                   ),
@@ -108,7 +130,9 @@ class CommonWidgets {
               // Movie Rating
               Text(
                 _movie.voteAverage.toString(),
-                style: const TextStyle(color: Colors.white, fontSize: 22),
+                style: const TextStyle(
+                  fontSize: 22,
+                ),
               ),
             ],
           ),
@@ -116,8 +140,11 @@ class CommonWidgets {
           Container(
             padding: EdgeInsets.fromLTRB(0, _height * 0.02, 0, 0),
             child: Text(
-                '${_movie.originalLanguage!.toUpperCase()} | R: ${_movie.adult! ? '18+' : '13+'} | ${_movie.releaseDate!}',
-                style: const TextStyle(color: Colors.white, fontSize: 12)),
+              '${_movie.originalLanguage!.toUpperCase()} | R: ${_movie.adult! ? '18+' : '13+'} | ${_movie.releaseDate!}',
+              style: const TextStyle(
+                fontSize: 12,
+              ),
+            ),
           ),
           // Movie Overview
           Container(
@@ -126,7 +153,9 @@ class CommonWidgets {
               _movie.overview!,
               maxLines: 9,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white70, fontSize: 10),
+              style: const TextStyle(
+                fontSize: 10,
+              ),
             ),
           )
         ],
