@@ -3,12 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
 // Pages
-import 'pages/splash_page.dart';
-import 'pages/main_page.dart';
+import '../pages/setup_page.dart';
+import '../pages/main_page.dart';
+import '../pages/landing_page.dart';
 
 void main() {
   runApp(
-    SplashPage(
+    SetUpPage(
       key: UniqueKey(),
       onInitComplete: () => runApp(
         ProviderScope(
@@ -26,7 +27,8 @@ class MainApp extends StatelessWidget {
       title: 'All4Movies',
       initialRoute: 'home',
       routes: {
-        'home': (BuildContext _context) => MainPage(),
+        // 'home': (BuildContext context) => MainPage(),
+        'home': (BuildContext context) => LandingPage(),
       },
       theme: ThemeData(
         primarySwatch: Colors.blue,

@@ -2,12 +2,13 @@ import 'dart:ui';
 // Packages
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 // Models
 import '../models/main_page_data.dart';
 import '../models/movie.dart';
 import '../models/selected_category.dart';
 // Widgets
-import '../widgets/movie_box.dart';
+import '../widgets/common_widgets.dart';
 // Controller
 import '../controllers/main_page_data_controller.dart';
 
@@ -24,10 +25,15 @@ class MainPage extends ConsumerWidget {
   late MainPageDataController _mainPageDataController;
   late MainPageData _mainPageData;
 
+  late CommonWidgets _commonWidgets;
+  late BuildContext _context;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     _viewportWidth = MediaQuery.of(context).size.width;
     _viewportHeight = MediaQuery.of(context).size.height;
+    _commonWidgets = GetIt.instance.get<CommonWidgets>();
+    _context = context;
 
     // Monitor these providers
     // Controller
@@ -38,23 +44,11 @@ class MainPage extends ConsumerWidget {
 
     _searchController = TextEditingController();
 
-    return _buildUI();
-  }
-
-  Widget _buildUI() {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.black,
-      body: Container(
-        width: _viewportWidth,
-        height: _viewportHeight,
-        child: Stack(
-          children: [
-            _backgroundWidget(),
-            _foregroundWidgets(),
-          ],
-        ),
-      ),
+    return _commonWidgets.commonUI(
+      _viewportWidth!,
+      _viewportHeight!,
+      _backgroundWidget(),
+      _foregroundWidgets(),
     );
   }
 
@@ -122,8 +116,9 @@ class MainPage extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _getElevatedButtons(
-              'Previous Page',
+            // Previous Page
+            _commonWidgets.getElevatedButtons(
+              '<',
               () => {
                 _mainPageDataController.updateMoviesGategory(
                   _mainPageData.page! - 1,
@@ -140,8 +135,9 @@ class MainPage extends ConsumerWidget {
                 fontWeight: FontWeight.w400,
               ),
             ),
-            _getElevatedButtons(
-              'Next Page',
+            // Next Page
+            _commonWidgets.getElevatedButtons(
+              '>',
               () => _mainPageDataController.updateMoviesGategory(
                 _mainPageData.page! + 1,
                 _mainPageData.searchCaterogy,
@@ -151,16 +147,6 @@ class MainPage extends ConsumerWidget {
           ],
         ),
       ),
-    );
-  }
-
-  ElevatedButton _getElevatedButtons(String displayText, Function() onPressed) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.black54,
-      ),
-      child: Text(displayText),
     );
   }
 
@@ -177,9 +163,22 @@ class MainPage extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            _backButtonWidget(),
             _searchFieldWidget(),
             _categorySelectionWidget(),
           ]),
+    );
+  }
+
+  Widget _backButtonWidget() {
+    return // Back button
+        Container(
+      width: _viewportWidth! * 0.20,
+      height: _viewportHeight! * 0.05,
+      child: _commonWidgets.getElevatedButtons(
+        'Back',
+        () => Navigator.pop(_context),
+      ),
     );
   }
 
@@ -188,7 +187,7 @@ class MainPage extends ConsumerWidget {
     final String _searchText = 'Search...';
 
     return Container(
-      width: _viewportWidth! * 0.50,
+      width: _viewportWidth! * 0.40,
       height: _viewportHeight! * 0.05,
       child: TextField(
         controller: _searchController,
@@ -264,10 +263,10 @@ class MainPage extends ConsumerWidget {
                 print('Movie Tapped');
               },
               // Instantiate MovieBox
-              child: MovieBox(
-                width: _viewportWidth! * 0.85,
-                height: _viewportHeight! * 0.20,
-                movie: movies[index],
+              child: _commonWidgets.getMovieBox(
+                _viewportWidth! * 0.85,
+                _viewportHeight! * 0.20,
+                movies[index],
               ),
             ),
           );

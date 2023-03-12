@@ -1,32 +1,35 @@
-// Packages
 import 'dart:convert';
-import 'package:co2509_assignment/services/movie_service.dart';
+// Packages
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-
+// Models
 import '../models/app_config.dart';
-
 // Services
 import '../services/http_service.dart';
+import '../services/movie_service.dart';
+// Widgets
+import '../widgets/common_widgets.dart';
 
-class SplashPage extends StatefulWidget {
+class SetUpPage extends StatefulWidget {
   final VoidCallback onInitComplete;
 
-  const SplashPage({Key? key, required this.onInitComplete}) : super(key: key);
+  const SetUpPage({Key? key, required this.onInitComplete}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _SplashPageState();
+  State<StatefulWidget> createState() => _SetUpPageState();
 }
 
 // Splash Page State
-class _SplashPageState extends State<SplashPage> {
+class _SetUpPageState extends State<SetUpPage> {
   @override
   void initState() {
     super.initState();
 
     // Callback to main app
-    _setup().then((_) => widget.onInitComplete());
+    _setup().then(
+      (_) => widget.onInitComplete(),
+    );
   }
 
   Future<void> _setup() async {
@@ -37,13 +40,27 @@ class _SplashPageState extends State<SplashPage> {
     final dynamic configFile =
         await rootBundle.loadString('assets/config/main.json');
     final dynamic configData = jsonDecode(configFile);
+
+    // Populate config data
     String key = configData['API_KEY'];
     String apiUrl = configData['BASE_API_URL'];
     String imageUrl = configData['BASE_IMAGE_URL'];
     String imageNotFoundUrl = configData['IMAGE_NOT_FOUND'];
 
+    MediaQueryData mediaQueryData =
+        MediaQueryData.fromWindow(WidgetsBinding.instance.window);
+    late double width = mediaQueryData.size.width;
+    late double height = mediaQueryData.size.height;
+    print("WIDTH: $width HEIGHT: $height");
+
     // Register AppConfig as singleton
-    _registerSingletons(getIt, key, apiUrl, imageUrl, imageNotFoundUrl);
+    _registerSingletons(
+      getIt,
+      key,
+      apiUrl,
+      imageUrl,
+      imageNotFoundUrl,
+    );
   }
 
   void _registerSingletons(
@@ -71,6 +88,11 @@ class _SplashPageState extends State<SplashPage> {
     // Register Movie Service as singleton
     getIt.registerSingleton<MovieService>(
       MovieService(),
+    );
+
+    // Register Common Service as singleton
+    getIt.registerSingleton<CommonWidgets>(
+      CommonWidgets(),
     );
   }
 
