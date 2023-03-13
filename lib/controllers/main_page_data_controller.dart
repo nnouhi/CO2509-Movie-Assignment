@@ -13,7 +13,7 @@ import 'package:get_it/get_it.dart';
 class MainPageDataController extends StateNotifier<MainPageData> {
   MainPageDataController([MainPageData? state])
       : super(state ?? MainPageData.initial()) {
-    _getAllMovies(SelectedCategory.nowPlayingCategory, 1, [], '', '');
+    _getAllMovies(DropdownCategories.nowPlayingCategory, 1, [], '', '');
   }
 
   final MovieService movieService = GetIt.instance.get<MovieService>();
@@ -80,7 +80,7 @@ class MainPageDataController extends StateNotifier<MainPageData> {
     String lastQueryText = queryText;
 
     _getAllMovies(
-      SelectedCategory.none,
+      DropdownCategories.none,
       1,
       [],
       queryText,
@@ -117,5 +117,18 @@ class MainPageDataController extends StateNotifier<MainPageData> {
         '',
       );
     }
+  }
+
+  // Called from main_page.dart when user sorts the movies
+  void updateMoviesOrder(String? newOrder) {
+    state = state.copyWith(
+      searchCaterogy: state.searchCaterogy,
+      page: state.page,
+      displayedMovies: state.displayedMovies,
+      queryText: state.queryText,
+      totalPages: state.totalPages,
+      lastQueryText: state.lastQueryText,
+      sortOrder: newOrder,
+    );
   }
 }

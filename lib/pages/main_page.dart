@@ -18,9 +18,14 @@ final mainPageDataControllerProvider =
 );
 
 class MainPage extends ConsumerWidget {
-  MainPage({Key? key, required this.isDarkTheme}) : super(key: key);
+  MainPage({
+    Key? key,
+    required this.isDarkTheme,
+    required this.changeLanguage,
+  }) : super(key: key);
 
   final bool? isDarkTheme;
+  bool? changeLanguage;
   double? _viewportWidth;
   double? _viewportHeight;
   TextEditingController? _searchController;
@@ -46,6 +51,16 @@ class MainPage extends ConsumerWidget {
     _mainPageData = ref.watch(mainPageDataControllerProvider);
 
     _searchController = TextEditingController();
+
+    // Change language
+    if (changeLanguage! == true) {
+      _mainPageDataController.updateMoviesGategory(
+        _mainPageData.page!,
+        _mainPageData.searchCaterogy,
+        true,
+      );
+      changeLanguage = false;
+    }
 
     return _commonWidgets.commonUI(
       _viewportWidth!,
@@ -147,6 +162,7 @@ class MainPage extends ConsumerWidget {
                 true,
               ),
             ),
+            _sortSelectionWidget(),
           ],
         ),
       ),
@@ -180,7 +196,9 @@ class MainPage extends ConsumerWidget {
       height: _viewportHeight! * 0.05,
       child: _commonWidgets.getElevatedButtons(
         'Back',
-        () => Navigator.pop(_context),
+        () => {
+          Navigator.pop(_context),
+        },
       ),
     );
   }
@@ -224,27 +242,60 @@ class MainPage extends ConsumerWidget {
         color: Colors.white24,
       ),
       onChanged: ((selectedCategory) => {
-            if (selectedCategory != SelectedCategory.none)
+            if (selectedCategory != DropdownCategories.none)
               {
-                _mainPageDataController.updateMoviesGategory(
-                  1,
-                  selectedCategory,
-                  false,
-                )
+                if (selectedCategory != _mainPageData.searchCaterogy)
+                  {
+                    _mainPageDataController.updateMoviesGategory(
+                      1,
+                      selectedCategory,
+                      false,
+                    )
+                  }
               }
           }),
       items: [
-        _commonWidgets.getDropDownItems(SelectedCategory.none),
-        _commonWidgets.getDropDownItems(SelectedCategory.nowPlayingCategory),
-        _commonWidgets.getDropDownItems(SelectedCategory.popularCategory),
-        _commonWidgets.getDropDownItems(SelectedCategory.topRatedCategory),
-        _commonWidgets.getDropDownItems(SelectedCategory.upcomingCategory),
+        _commonWidgets.getDropDownItems(DropdownCategories.none),
+        _commonWidgets.getDropDownItems(DropdownCategories.nowPlayingCategory),
+        _commonWidgets.getDropDownItems(DropdownCategories.popularCategory),
+        _commonWidgets.getDropDownItems(DropdownCategories.topRatedCategory),
+        _commonWidgets.getDropDownItems(DropdownCategories.upcomingCategory),
+      ],
+    );
+  }
+
+  Widget _sortSelectionWidget() {
+    return DropdownButton(
+      dropdownColor: Colors.black38,
+      value: _mainPageData.sortOrder,
+      icon: const Icon(
+        Icons.arrow_drop_down,
+        color: Colors.white24,
+      ),
+      onChanged: ((selectedSort) => {
+            if (selectedSort != DropdownCategories.none)
+              {
+                if (_mainPageData.sortOrder != selectedSort)
+                  {
+                    _mainPageDataController.updateMoviesOrder(
+                      selectedSort,
+                    )
+                  }
+              }
+          }),
+      items: [
+        _commonWidgets.getDropDownItems(DropdownCategories.none),
+        _commonWidgets.getDropDownItems(DropdownCategories.sortAscending),
+        _commonWidgets.getDropDownItems(DropdownCategories.sortDescending),
+        _commonWidgets.getDropDownItems(DropdownCategories.sortDatesNewest),
+        _commonWidgets.getDropDownItems(DropdownCategories.sortDatesOldest),
       ],
     );
   }
 
   Widget _moviesListViewWidget() {
     final List<Movie> movies = _mainPageData.displayedMovies!;
+    _sortMovies(movies, _mainPageData.sortOrder!);
     if (movies.length != 0) {
       return ListView.builder(
         itemCount: movies.length,
@@ -271,6 +322,57 @@ class MainPage extends ConsumerWidget {
           backgroundColor: Colors.white,
         ),
       );
+    }
+  }
+
+  void _sortMovies(List<Movie> list, String sortOder) {
+    switch (sortOder) {
+      case DropdownCategories.sortAscending:
+        sortMoviesByTitle(list, true);
+        break;
+      case DropdownCategories.sortDescending:
+        sortMoviesByTitle(list, false);
+        break;
+      case DropdownCategories.sortDatesNewest:
+        sortMoviesByDate(list, false);
+        break;
+      case DropdownCategories.sortDatesOldest:
+        sortMoviesByDate(list, true);
+        break;
+      default:
+        break;
+    }
+  }
+
+  void sortMoviesByTitle(List<Movie> list, bool ascending) {
+    if (ascending) {
+      list.sort((a, b) {
+        return a.title!.toLowerCase().compareTo(
+              b.title!.toLowerCase(),
+            );
+      });
+    } else {
+      list.sort((a, b) {
+        return b.title!.toLowerCase().compareTo(
+              a.title!.toLowerCase(),
+            );
+      });
+    }
+  }
+
+  void sortMoviesByDate(List<Movie> list, bool ascending) {
+    if (ascending) {
+      list.sort((a, b) {
+        return a.releaseDate!.toLowerCase().compareTo(
+              b.releaseDate!.toLowerCase(),
+            );
+      });
+    } else {
+      list.sort((a, b) {
+        return b.releaseDate!.toLowerCase().compareTo(
+              a.releaseDate!.toLowerCase(),
+            );
+      });
     }
   }
 }

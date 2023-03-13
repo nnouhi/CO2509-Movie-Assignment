@@ -26,6 +26,7 @@ class LandingPage extends ConsumerWidget {
   late double _viewportWidth;
   late double _viewportHeight;
 
+  bool _changeLanguage = false;
   late BuildContext _context;
 
   @override
@@ -154,6 +155,7 @@ class LandingPage extends ConsumerWidget {
                 builder: (context) => MainPage(
                   key: UniqueKey(),
                   isDarkTheme: _landingPageData.isDarkTheme!,
+                  changeLanguage: true,
                 ),
               ),
             ),
@@ -259,8 +261,13 @@ class LandingPage extends ConsumerWidget {
       icon: const Icon(
         Icons.arrow_drop_down,
       ),
-      onChanged: ((selectedLanguage) => _landingPageDataController
-          .updateAppLanguage(selectedLanguage.toString())),
+      onChanged: ((selectedLanguage) => {
+            if (selectedLanguage.toString() != _landingPageData.appLanguage)
+              {
+                _landingPageDataController
+                    .updateAppLanguage(selectedLanguage.toString())
+              }
+          }),
       items: [
         _commonWidgets.getDropDownItems('English'),
         _commonWidgets.getDropDownItems('Ελληνικά'),

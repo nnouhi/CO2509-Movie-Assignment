@@ -9,6 +9,7 @@ class MainPageData {
   final String? queryText;
   final int? totalPages;
   final String? lastQueryText;
+  final String? sortOrder;
 
   MainPageData({
     required this.displayedMovies,
@@ -17,15 +18,17 @@ class MainPageData {
     required this.queryText,
     this.totalPages,
     this.lastQueryText,
+    this.sortOrder,
   });
 
   MainPageData.initial()
       : displayedMovies = [],
         page = 1,
-        searchCaterogy = SelectedCategory.popularCategory, // default category
+        searchCaterogy = DropdownCategories.popularCategory, // default category
         queryText = '',
         totalPages = 0,
-        lastQueryText = '';
+        lastQueryText = '',
+        sortOrder = DropdownCategories.none;
 
   MainPageData copyWith({
     List<Movie>? displayedMovies,
@@ -34,6 +37,7 @@ class MainPageData {
     String? queryText,
     int? totalPages,
     String? lastQueryText,
+    String? sortOrder,
   }) {
     return MainPageData(
       displayedMovies: displayedMovies ?? this.displayedMovies,
@@ -42,6 +46,7 @@ class MainPageData {
       queryText: queryText ?? this.queryText,
       totalPages: totalPages ?? this.totalPages,
       lastQueryText: lastQueryText ?? this.lastQueryText,
+      sortOrder: sortOrder ?? this.sortOrder,
     );
   }
 }
