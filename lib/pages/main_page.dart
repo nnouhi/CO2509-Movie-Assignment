@@ -1,6 +1,5 @@
 import 'dart:ui';
 // Packages
-import 'package:co2509_assignment/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
@@ -9,6 +8,7 @@ import '../models/main_page_data.dart';
 import '../models/movie.dart';
 import '../models/selected_category.dart';
 // Widgets
+import '../widgets/movie_box.dart';
 import '../widgets/common_widgets.dart';
 // Controller
 import '../controllers/main_page_data_controller.dart';
@@ -306,12 +306,13 @@ class MainPage extends ConsumerWidget {
             padding: EdgeInsets.fromLTRB(0, 0, 0, _viewportHeight! * 0.05),
             child: GestureDetector(
               // Instantiate MovieBox
-              child: _commonWidgets.getMovieBox(
-                _viewportWidth! * 0.85,
-                _viewportHeight! * 0.27, // 0.20 default
-                movies[index],
+              child: MovieBox(
+                width: _viewportWidth! * 0.85,
+                height: _viewportHeight! * 0.27, // 0.20 default
+                movie: movies[index],
                 // Callback to reload page
-                (_) => _mainPageDataController.reloadPage(),
+                favouriteMovieCallback: (_) =>
+                    _mainPageDataController.reloadPage(),
               ),
             ),
           );
