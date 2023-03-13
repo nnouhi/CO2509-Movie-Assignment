@@ -88,6 +88,11 @@ class MainPageDataController extends StateNotifier<MainPageData> {
     );
   }
 
+  // Reload the page
+  void reloadPage() {
+    state = state.copyWith();
+  }
+
   // Called from main_page.dart when user changes the movies category
   void updateMoviesGategory(
     int? page,

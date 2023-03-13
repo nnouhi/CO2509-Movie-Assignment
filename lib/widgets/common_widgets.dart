@@ -1,4 +1,5 @@
 // Packages
+import 'package:co2509_assignment/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -9,6 +10,7 @@ class CommonWidgets {
   late Movie _movie;
   late double _width;
   late double _height;
+  late BuildContext _context;
 
   // Basic UI found in all pages
   Widget commonUI(
@@ -17,7 +19,9 @@ class CommonWidgets {
     Widget backgroundWidget,
     Widget foregroundWidget,
     bool isDarkTheme,
+    BuildContext context,
   ) {
+    _context = context;
     return MaterialApp(
       title: 'All4Movies',
       theme: ThemeData(
@@ -67,11 +71,15 @@ class CommonWidgets {
   }
 
   // Movie Box widget
-  Widget getMovieBox(double width, double height, Movie movie) {
+  Widget getMovieBox(
+    double width,
+    double height,
+    Movie movie,
+    Function(void) favouriteMovieCallback,
+  ) {
     _movie = movie;
     _width = width;
     _height = height;
-
     return Container(
       child: Row(
         mainAxisSize: MainAxisSize.max,
@@ -79,7 +87,7 @@ class CommonWidgets {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _moviePosterWidget(),
-          _movieInfoWidget(),
+          _movieInfoWidget(favouriteMovieCallback),
         ],
       ),
     );
@@ -100,13 +108,19 @@ class CommonWidgets {
   }
 
   // General movie info widget
-  Widget _movieInfoWidget() {
+  Widget _movieInfoWidget(Function(void) favouriteMovieCallback) {
+    // If movie is already in favourites, don't show the favourite button
+    Widget favouriteButton =
+        (GetIt.instance.get<DatabaseService>().existsInFavourites(_movie.id!))
+            ? Container()
+            : _favouriteButtonWidget(favouriteMovieCallback);
+
     return Container(
       height: _height,
       width: _width * 0.75,
       child: Column(
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Movie Title and Rating
@@ -157,8 +171,55 @@ class CommonWidgets {
                 fontSize: 10,
               ),
             ),
-          )
+          ),
+          // Add to favourite button
+          favouriteButton,
         ],
+      ),
+    );
+  }
+
+  // Favourite button widget
+  Widget _favouriteButtonWidget(Function(void) favouriteMovieCallback) {
+    Movie movie = _movie;
+    String title = _movie.title!;
+    return Container(
+      padding: EdgeInsets.fromLTRB(0, _height * 0.02, 0, 0),
+      child: ElevatedButton(
+        onPressed: () => showDialog<String>(
+          context: _context,
+          builder: (BuildContext context) => AlertDialog(
+            title: const Text('Are you sure?'),
+            content: Text(
+              'Would you like to add ${title} to your favourites?',
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'Cancel'),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => {
+                  Navigator.pop(context, 'Add'),
+                  GetIt.instance
+                      .get<DatabaseService>()
+                      .addMovieToFavourites(movie)
+                      .then(
+                        (_) => favouriteMovieCallback(_),
+                      ),
+                },
+                child: const Text('Add'),
+              ),
+            ],
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+            // backgroundColor: Colors.black54,
+            ),
+        child: const Text(
+          'Add to Favourites',
+          style: TextStyle(fontSize: 10),
+        ),
       ),
     );
   }

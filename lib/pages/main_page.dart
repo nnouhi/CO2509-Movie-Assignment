@@ -1,5 +1,6 @@
 import 'dart:ui';
 // Packages
+import 'package:co2509_assignment/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
@@ -68,6 +69,7 @@ class MainPage extends ConsumerWidget {
       _backgroundWidget(),
       _foregroundWidgets(),
       isDarkTheme!,
+      context,
     );
   }
 
@@ -303,14 +305,13 @@ class MainPage extends ConsumerWidget {
           return Padding(
             padding: EdgeInsets.fromLTRB(0, 0, 0, _viewportHeight! * 0.05),
             child: GestureDetector(
-              onTap: () {
-                print('Movie Tapped');
-              },
               // Instantiate MovieBox
               child: _commonWidgets.getMovieBox(
                 _viewportWidth! * 0.85,
-                _viewportHeight! * 0.20,
+                _viewportHeight! * 0.27, // 0.20 default
                 movies[index],
+                // Callback to reload page
+                (_) => _mainPageDataController.reloadPage(),
               ),
             ),
           );

@@ -1,12 +1,16 @@
 import 'dart:convert';
 // Packages
+import 'package:co2509_assignment/models/movie.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+// Database
+import '../database/database.dart';
 // Models
 import '../models/app_config.dart';
 // Services
+import '../services/database_service.dart';
 import '../services/firebase_service.dart';
 import '../services/http_service.dart';
 import '../services/movie_service.dart';
@@ -58,6 +62,10 @@ class _SetUpPageState extends State<SetUpPage> {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
 
+    // Initialize Database
+    dynamic db =
+        await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+
     // Register AppConfig as singleton
     _registerSingletons(
       getIt,
@@ -65,6 +73,7 @@ class _SetUpPageState extends State<SetUpPage> {
       apiUrl,
       imageUrl,
       imageNotFoundUrl,
+      db,
     );
   }
 
@@ -74,6 +83,7 @@ class _SetUpPageState extends State<SetUpPage> {
     String apiUrl,
     String imageUrL,
     String imageNotFoundUrl,
+    dynamic db,
   ) {
     // Register AppConfig as singleton
     getIt.registerSingleton<AppConfig>(
@@ -90,6 +100,11 @@ class _SetUpPageState extends State<SetUpPage> {
       FirebaseService(),
     );
 
+    // Register Database Service as singleton
+    getIt.registerSingleton<DatabaseService>(
+      DatabaseService(db),
+    );
+
     // Register HTTP Service as singleton
     getIt.registerSingleton<HTTPService>(
       HTTPService(),
@@ -104,6 +119,9 @@ class _SetUpPageState extends State<SetUpPage> {
     getIt.registerSingleton<CommonWidgets>(
       CommonWidgets(),
     );
+
+    // Debug
+    //debug();
   }
 
   @override
@@ -124,5 +142,13 @@ class _SetUpPageState extends State<SetUpPage> {
         ),
       ),
     );
+  }
+
+  void debug() async {
+    final List<Movie> movies =
+        await GetIt.instance.get<DatabaseService>().getFavouriteMovies();
+    for (Movie movie in movies) {
+      print(movie.title);
+    }
   }
 }

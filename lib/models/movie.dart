@@ -1,18 +1,20 @@
 // Packages
 import 'package:get_it/get_it.dart';
+import 'package:floor/floor.dart';
 
 // Models
 import '../models/app_config.dart';
 
+@entity
 class Movie {
+  @primaryKey
+  int? id;
   String? posterPath;
   bool? adult;
   String? overview;
   String? releaseDate;
-  int? id;
   String? originalLanguage;
   String? title;
-  String? backdropPath;
   double voteAverage;
 
   Movie({
@@ -23,7 +25,6 @@ class Movie {
     this.id,
     this.originalLanguage,
     this.title,
-    this.backdropPath,
     required this.voteAverage, // Required field
   });
 
@@ -37,7 +38,6 @@ class Movie {
       id: json['id'],
       originalLanguage: json['original_language'],
       title: json['title'],
-      backdropPath: json['backdrop_path'],
       voteAverage: json['vote_average'].toDouble(),
     );
   }
@@ -51,7 +51,6 @@ class Movie {
     data['id'] = id;
     data['original_language'] = originalLanguage;
     data['title'] = title;
-    data['backdrop_path'] = backdropPath;
     data['vote_average'] = voteAverage;
     return data;
   }

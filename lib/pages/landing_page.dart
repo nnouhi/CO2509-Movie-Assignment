@@ -49,6 +49,7 @@ class LandingPage extends ConsumerWidget {
       _backgroundWidget(),
       _foregroundWidgets(),
       _landingPageData.isDarkTheme!,
+      context,
     );
   }
 

@@ -47,7 +47,7 @@ class FirebaseService {
         .child('IsDarkTheme')
         .set(isDarkTheme)
         .then(
-          (value) => appThemeCallback(),
+          (_) => appThemeCallback(),
         )
         .catchError(
           (error) => print('Error: $error'),
