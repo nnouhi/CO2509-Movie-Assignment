@@ -58,13 +58,13 @@ class _SetUpPageState extends State<SetUpPage> {
     late double width = mediaQueryData.size.width;
     late double height = mediaQueryData.size.height;
 
-    // Initialize Firebase
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
-
     // Initialize Database
     dynamic db =
         await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+
+    // Initialize Firebase
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
 
     // Register AppConfig as singleton
     _registerSingletons(

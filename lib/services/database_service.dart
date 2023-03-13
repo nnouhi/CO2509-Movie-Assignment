@@ -23,9 +23,15 @@ class DatabaseService {
     return await _db.moviesDao.getFavouriteMovies();
   }
 
-  Future<void> addMovieToFavourites(Movie movie) async {
+  Future<void> addFavouriteMovie(Movie movie) async {
     await _db.moviesDao.addFavouriteMovie(movie).then((value) {
       _addMovieToMap(movie);
+    });
+  }
+
+  Future<void> removeMovieFromFavourites(Movie movie) async {
+    await _db.moviesDao.removeFavouriteMovie(movie).then((value) {
+      _favouriteMovies.remove(movie);
     });
   }
 

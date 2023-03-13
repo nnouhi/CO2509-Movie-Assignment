@@ -147,7 +147,7 @@ class MovieBox extends StatelessWidget {
                   Navigator.pop(context, 'Add'),
                   GetIt.instance
                       .get<DatabaseService>()
-                      .addMovieToFavourites(movie)
+                      .addFavouriteMovie(movie)
                       .then(
                         (_) => favouriteMovieCallback(_),
                       ),

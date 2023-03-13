@@ -146,6 +146,11 @@ class _$FavouriteMoviesDao extends FavouriteMoviesDao {
   final DeletionAdapter<Movie> _movieDeletionAdapter;
 
   @override
+  Future<void> deleteAllFavouriteMovies() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM Movie');
+  }
+
+  @override
   Future<List<Movie>> getFavouriteMovies() async {
     return _queryAdapter.queryList('SELECT * FROM Movie',
         mapper: (Map<String, Object?> row) => Movie(
@@ -174,11 +179,6 @@ class _$FavouriteMoviesDao extends FavouriteMoviesDao {
         arguments: [id],
         queryableName: 'Movie',
         isView: false);
-  }
-
-  @override
-  Future<void> deleteAllFavouriteMovies() async {
-    await _queryAdapter.queryNoReturn('DELETE FROM Movie');
   }
 
   @override

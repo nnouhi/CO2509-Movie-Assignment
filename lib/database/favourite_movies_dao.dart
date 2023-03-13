@@ -5,12 +5,6 @@ import '../models/movie.dart';
 
 @dao
 abstract class FavouriteMoviesDao {
-  @Query('SELECT * FROM Movie')
-  Future<List<Movie>> getFavouriteMovies();
-
-  @Query('SELECT * FROM Movie WHERE id = :id')
-  Stream<Movie?> findFavouriteById(int id);
-
   @insert
   Future<void> addFavouriteMovie(Movie movie);
 
@@ -19,4 +13,10 @@ abstract class FavouriteMoviesDao {
 
   @Query('DELETE FROM Movie')
   Future<void> deleteAllFavouriteMovies();
+
+  @Query('SELECT * FROM Movie')
+  Future<List<Movie>> getFavouriteMovies();
+
+  @Query('SELECT * FROM Movie WHERE id = :id')
+  Stream<Movie?> findFavouriteById(int id);
 }

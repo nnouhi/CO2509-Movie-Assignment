@@ -1,6 +1,7 @@
 class LandingPageData {
   final bool? isDarkTheme;
   final String? appLanguage;
+
   LandingPageData({
     required this.isDarkTheme,
     required this.appLanguage,
