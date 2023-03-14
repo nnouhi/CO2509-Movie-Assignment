@@ -18,6 +18,13 @@ class DatabaseService {
     // deleteAllFavouriteMovies();
   }
 
+  List<Movie> getFavouriteMoviesFromMap() {
+    if (_favouriteMovies.isEmpty) {
+      return [];
+    }
+    return _favouriteMovies.values.toList();
+  }
+
   // Wrapper methods
   Future<List<Movie>> getFavouriteMovies() async {
     return await _db.moviesDao.getFavouriteMovies();
@@ -31,7 +38,7 @@ class DatabaseService {
 
   Future<void> removeMovieFromFavourites(Movie movie) async {
     await _db.moviesDao.removeFavouriteMovie(movie).then((value) {
-      _favouriteMovies.remove(movie);
+      _favouriteMovies.remove(movie.id);
     });
   }
 

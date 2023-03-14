@@ -8,9 +8,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 // Widgets
+import '../widgets/page_ui.dart';
 import '../widgets/common_widgets.dart';
 // Pages
 import '../pages/main_page.dart';
+import '../pages/favourite_movies_page.dart';
 
 final landingPageDataControllerProvider =
     StateNotifierProvider<LandingPageDataController, LandingPageData>(
@@ -43,13 +45,12 @@ class LandingPage extends ConsumerWidget {
     // Data from the controller
     _landingPageData = ref.watch(landingPageDataControllerProvider);
 
-    return _commonWidgets.commonUI(
+    return PageUI(
       _viewportWidth,
       _viewportHeight,
-      _backgroundWidget(),
       _foregroundWidgets(),
       _landingPageData.isDarkTheme!,
-      context,
+      (_) => null,
     );
   }
 
@@ -156,14 +157,23 @@ class LandingPage extends ConsumerWidget {
                 builder: (context) => MainPage(
                   key: UniqueKey(),
                   isDarkTheme: _landingPageData.isDarkTheme!,
-                  changeLanguage: true,
+                  reloadPage: true,
                 ),
               ),
             ),
           ),
           _commonWidgets.getElevatedButtons(
             'Favourite Movies Page',
-            () => print('Favourite Movies clicked'),
+            () => Navigator.push(
+              _context,
+              MaterialPageRoute(
+                builder: (context) => FavouriteMoviesPage(
+                  key: UniqueKey(),
+                  isDarkTheme: _landingPageData.isDarkTheme!,
+                  reloadPage: true,
+                ),
+              ),
+            ),
           ),
         ],
       ),

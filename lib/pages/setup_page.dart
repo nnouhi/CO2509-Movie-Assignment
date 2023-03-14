@@ -144,11 +144,11 @@ class _SetUpPageState extends State<SetUpPage> {
     );
   }
 
-  void debug() async {
-    final List<Movie> movies =
-        await GetIt.instance.get<DatabaseService>().getFavouriteMovies();
-    for (Movie movie in movies) {
-      print(movie.title);
-    }
-  }
+  // void debug() async {
+  //   final List<Movie> movies =
+  //       await GetIt.instance.get<DatabaseService>().getFavouriteMovies();
+  //   for (Movie movie in movies) {
+  //     print(movie.title);
+  //   }
+  // }
 }

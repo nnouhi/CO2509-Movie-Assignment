@@ -6,7 +6,7 @@ import '../models/movie.dart';
 // Services
 import '../services/database_service.dart';
 
-class MovieBox extends StatelessWidget {
+class MovieBoxAddToFavourites extends StatelessWidget {
   final GetIt getIt = GetIt.instance;
 
   final double width;
@@ -16,7 +16,7 @@ class MovieBox extends StatelessWidget {
 
   late BuildContext _context;
 
-  MovieBox({
+  MovieBoxAddToFavourites({
     required this.width,
     required this.height,
     required this.movie,
@@ -33,7 +33,7 @@ class MovieBox extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _moviePosterWidget(),
-          _movieInfoWidget(favouriteMovieCallback),
+          _movieInfoWidget(),
         ],
       ),
     );
@@ -54,12 +54,12 @@ class MovieBox extends StatelessWidget {
   }
 
   // General movie info widget
-  Widget _movieInfoWidget(Function(void) favouriteMovieCallback) {
+  Widget _movieInfoWidget() {
     // If movie is already in favourites, don't show the favourite button
-    Widget favouriteButton =
+    Widget addToFavouritesButton =
         (getIt.get<DatabaseService>().existsInFavourites(movie.id!))
             ? Container()
-            : _favouriteButtonWidget(favouriteMovieCallback);
+            : _addToFavouritesButtonWidget();
 
     return Container(
       height: height,
@@ -119,14 +119,14 @@ class MovieBox extends StatelessWidget {
             ),
           ),
           // Add to favourite button
-          favouriteButton,
+          addToFavouritesButton,
         ],
       ),
     );
   }
 
   // Favourite button widget
-  Widget _favouriteButtonWidget(Function(void) favouriteMovieCallback) {
+  Widget _addToFavouritesButtonWidget() {
     return Container(
       padding: EdgeInsets.fromLTRB(0, height * 0.02, 0, 0),
       child: ElevatedButton(
@@ -145,10 +145,7 @@ class MovieBox extends StatelessWidget {
               TextButton(
                 onPressed: () => {
                   Navigator.pop(context, 'Add'),
-                  GetIt.instance
-                      .get<DatabaseService>()
-                      .addFavouriteMovie(movie)
-                      .then(
+                  getIt.get<DatabaseService>().addFavouriteMovie(movie).then(
                         (_) => favouriteMovieCallback(_),
                       ),
                 },

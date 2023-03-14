@@ -4,36 +4,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 // Models
-import '../models/main_page_data.dart';
 import '../models/movie.dart';
 import '../models/selected_category.dart';
+import '../models/favourite_movies_page_data.dart';
 // Widgets
-import '../widgets/page_ui.dart';
-import '../widgets/movie_box_add_to_favourites.dart';
 import '../widgets/common_widgets.dart';
+import '../widgets/movie_box_remove_from_favourites.dart';
+import '../widgets/page_ui.dart';
 // Controller
-import '../controllers/main_page_data_controller.dart';
+import '../controllers/favourite_movies_page_data_controller.dart';
 
-final mainPageDataControllerProvider =
-    StateNotifierProvider<MainPageDataController, MainPageData>(
-  (ref) => MainPageDataController(),
+final favouriteMoviesPageDataControllerProvider = StateNotifierProvider<
+    FavouriteMoviesPageDataController, FavouriteMoviesPageData>(
+  (ref) => FavouriteMoviesPageDataController(),
 );
 
-class MainPage extends ConsumerWidget {
-  MainPage({
+class FavouriteMoviesPage extends ConsumerWidget {
+  FavouriteMoviesPage({
     Key? key,
     required this.isDarkTheme,
     required this.reloadPage,
   }) : super(key: key);
 
-  final bool? isDarkTheme;
   bool? reloadPage;
+  final bool? isDarkTheme;
   double? _viewportWidth;
   double? _viewportHeight;
   TextEditingController? _searchController;
 
-  late MainPageDataController _mainPageDataController;
-  late MainPageData _mainPageData;
+  late FavouriteMoviesPageDataController _favouriteMoviesPageDataController;
+  late FavouriteMoviesPageData _favouriteMoviesPageData;
 
   late CommonWidgets _commonWidgets;
   late BuildContext _context;
@@ -47,23 +47,20 @@ class MainPage extends ConsumerWidget {
 
     // Monitor these providers
     // Controller
-    _mainPageDataController =
-        ref.watch(mainPageDataControllerProvider.notifier);
+    _favouriteMoviesPageDataController =
+        ref.watch(favouriteMoviesPageDataControllerProvider.notifier);
     // Data from the controller
-    _mainPageData = ref.watch(mainPageDataControllerProvider);
+    _favouriteMoviesPageData =
+        ref.watch(favouriteMoviesPageDataControllerProvider);
 
     _searchController = TextEditingController();
 
-    // Every time we are navigated to this page we want to reload the page to fetch any updated data (different language)
+    // Every time we are navigated to this page we want to reload the page to fetch any updated data (new fav movies)
     Function(void) _reloadCallback;
     if (reloadPage!) {
       reloadPage = false;
       _reloadCallback = (void _) {
-        _mainPageDataController.updateMoviesGategory(
-          _mainPageData.page!,
-          _mainPageData.searchCaterogy,
-          true,
-        );
+        _favouriteMoviesPageDataController.reloadPage();
       };
     } else {
       _reloadCallback = (void _) {};
@@ -115,12 +112,11 @@ class MainPage extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Search bar
-            _searchBarWidget(),
-            // Page buttons
-            _navigationButtonsWidget(),
+            // Top Bar
+            _topBarWidget(),
             // Movies list view
             Container(
+              margin: EdgeInsets.fromLTRB(0, _viewportHeight! * 0.05, 0, 0),
               // color: Colors.black,
               height: _viewportHeight! * 0.75,
               padding: EdgeInsets.symmetric(vertical: _viewportHeight! * 0.01),
@@ -132,64 +128,29 @@ class MainPage extends ConsumerWidget {
     );
   }
 
-  // Page button widget
-  Widget _navigationButtonsWidget() {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: _viewportHeight! * 0.01),
-      child: Center(
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Previous Page
-            _commonWidgets.getElevatedButtons(
-              '<',
-              () => _mainPageDataController.updateMoviesGategory(
-                _mainPageData.page! - 1,
-                _mainPageData.searchCaterogy,
-                true,
-              ),
-            ),
-            Text(
-              'Page: ${_mainPageData.page} / ${_mainPageData.totalPages}',
-              style: const TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            // Next Page
-            _commonWidgets.getElevatedButtons(
-              '>',
-              () => _mainPageDataController.updateMoviesGategory(
-                _mainPageData.page! + 1,
-                _mainPageData.searchCaterogy,
-                true,
-              ),
-            ),
-            _sortSelectionWidget(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Search bar widgets
-  Widget _searchBarWidget() {
+  Widget _topBarWidget() {
     return Container(
       height: _viewportHeight! * 0.08,
+      padding: EdgeInsets.fromLTRB(
+          _viewportWidth! * 0.02, 0, _viewportWidth! * 0.015, 0),
       decoration: BoxDecoration(
         color: Colors.black54,
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: Row(
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _backButtonWidget(),
-            _searchFieldWidget(),
-            _categorySelectionWidget(),
+            const Text(
+              'My Favourites',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            _sortSelectionWidget(),
           ]),
     );
   }
@@ -208,71 +169,10 @@ class MainPage extends ConsumerWidget {
     );
   }
 
-  Widget _searchFieldWidget() {
-    final InputBorder _border = InputBorder.none;
-    final String _searchText = 'Search...';
-
-    return Container(
-      width: _viewportWidth! * 0.40,
-      height: _viewportHeight! * 0.05,
-      child: TextField(
-        controller: _searchController,
-        onSubmitted: (queryText) => {
-          if (queryText.isNotEmpty)
-            {
-              _mainPageDataController.updateQueryText(
-                queryText,
-              )
-            }
-        },
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-            focusedBorder: _border,
-            border: _border,
-            prefixIcon: const Icon(Icons.search, color: Colors.white24),
-            hintStyle: const TextStyle(color: Colors.white24),
-            filled: false,
-            fillColor: Colors.white24,
-            hintText: _searchText),
-      ),
-    );
-  }
-
-  Widget _categorySelectionWidget() {
-    return DropdownButton(
-      dropdownColor: Colors.black38,
-      value: _mainPageData.searchCaterogy,
-      icon: const Icon(
-        Icons.arrow_drop_down,
-        color: Colors.white24,
-      ),
-      onChanged: ((selectedCategory) => {
-            if (selectedCategory != DropdownCategories.none)
-              {
-                if (selectedCategory != _mainPageData.searchCaterogy)
-                  {
-                    _mainPageDataController.updateMoviesGategory(
-                      1,
-                      selectedCategory,
-                      false,
-                    )
-                  }
-              }
-          }),
-      items: [
-        _commonWidgets.getDropDownItems(DropdownCategories.none),
-        _commonWidgets.getDropDownItems(DropdownCategories.nowPlayingCategory),
-        _commonWidgets.getDropDownItems(DropdownCategories.popularCategory),
-        _commonWidgets.getDropDownItems(DropdownCategories.topRatedCategory),
-        _commonWidgets.getDropDownItems(DropdownCategories.upcomingCategory),
-      ],
-    );
-  }
-
   Widget _sortSelectionWidget() {
     return DropdownButton(
       dropdownColor: Colors.black38,
-      value: _mainPageData.sortOrder,
+      value: _favouriteMoviesPageData.sortOrder,
       icon: const Icon(
         Icons.arrow_drop_down,
         color: Colors.white24,
@@ -280,9 +180,9 @@ class MainPage extends ConsumerWidget {
       onChanged: ((selectedSort) => {
             if (selectedSort != DropdownCategories.none)
               {
-                if (_mainPageData.sortOrder != selectedSort)
+                if (_favouriteMoviesPageData.sortOrder != selectedSort)
                   {
-                    _mainPageDataController.updateMoviesOrder(
+                    _favouriteMoviesPageDataController.updateMoviesOrder(
                       selectedSort,
                     )
                   }
@@ -299,8 +199,8 @@ class MainPage extends ConsumerWidget {
   }
 
   Widget _moviesListViewWidget() {
-    final List<Movie> movies = _mainPageData.displayedMovies!;
-    _sortMovies(movies, _mainPageData.sortOrder!);
+    final List<Movie> movies = _favouriteMoviesPageData.displayedMovies!;
+    _sortMovies(movies, _favouriteMoviesPageData.sortOrder!);
     if (movies.length != 0) {
       return ListView.builder(
         itemCount: movies.length,
@@ -309,13 +209,13 @@ class MainPage extends ConsumerWidget {
             padding: EdgeInsets.fromLTRB(0, 0, 0, _viewportHeight! * 0.05),
             child: GestureDetector(
               // Instantiate MovieBox
-              child: MovieBoxAddToFavourites(
+              child: MovieBoxRemoveFromFavourites(
                 width: _viewportWidth! * 0.85,
                 height: _viewportHeight! * 0.27, // 0.20 default
                 movie: movies[index],
                 // Callback to reload page
                 favouriteMovieCallback: (_) =>
-                    _mainPageDataController.reloadPage(),
+                    _favouriteMoviesPageDataController.reloadPage(),
               ),
             ),
           );
