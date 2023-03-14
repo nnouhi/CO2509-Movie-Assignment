@@ -146,7 +146,10 @@ class MovieBoxRemoveFromFavourites extends StatelessWidget {
                         (_) => favouriteMovieCallback(_),
                       ),
                 },
-                child: const Text('Remove'),
+                child: const Text(
+                  'Remove',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
