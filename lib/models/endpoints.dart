@@ -6,4 +6,6 @@ class Endpoints {
   static const String popularMoviesEndpoint = '/movie/popular';
   static const String topRatedPMoviesEndpoint = '/movie/top_rated';
   static const String upcomingMoviesEndpoint = '/movie/upcoming';
+  static const String newGuestTokenEndpoint =
+      '/authentication/guest_session/new';
 }

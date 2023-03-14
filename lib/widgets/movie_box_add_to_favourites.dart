@@ -1,4 +1,5 @@
 // Packages
+import 'package:co2509_assignment/widgets/common_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 // Models
@@ -13,6 +14,7 @@ class MovieBoxAddToFavourites extends StatelessWidget {
   final double height;
   final Movie movie;
   final Function(void) favouriteMovieCallback;
+  final Function(int) rateMovieAction;
 
   late BuildContext _context;
 
@@ -21,6 +23,7 @@ class MovieBoxAddToFavourites extends StatelessWidget {
     required this.height,
     required this.movie,
     required this.favouriteMovieCallback,
+    required this.rateMovieAction,
   });
 
   @override
@@ -118,8 +121,19 @@ class MovieBoxAddToFavourites extends StatelessWidget {
               ),
             ),
           ),
-          // Add to favourite button
-          addToFavouritesButton,
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Add to favourite button
+              addToFavouritesButton,
+              getIt.get<CommonWidgets>().getElevatedButtons(
+                    'Rate Movie',
+                    rateMovieAction(movie.id!),
+                  )
+            ],
+          ),
         ],
       ),
     );
@@ -129,8 +143,8 @@ class MovieBoxAddToFavourites extends StatelessWidget {
   Widget _addToFavouritesButtonWidget() {
     return Container(
       padding: EdgeInsets.fromLTRB(0, height * 0.02, 0, 0),
-      child: ElevatedButton(
-        onPressed: () => showDialog<String>(
+      child: getIt.get<CommonWidgets>().getElevatedButtons('Add', () {
+        showDialog<String>(
           context: _context,
           builder: (BuildContext context) => AlertDialog(
             title: const Text('Are you sure?'),
@@ -153,15 +167,8 @@ class MovieBoxAddToFavourites extends StatelessWidget {
               ),
             ],
           ),
-        ),
-        style: ElevatedButton.styleFrom(
-            // backgroundColor: Colors.black54,
-            ),
-        child: const Text(
-          'Add to Favourites',
-          style: TextStyle(fontSize: 10),
-        ),
-      ),
+        );
+      }),
     );
   }
 }

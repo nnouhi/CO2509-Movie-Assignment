@@ -16,6 +16,23 @@ class MovieService {
     httpService = getIt.get<HTTPService>();
   }
 
+  Future<bool> rateMovie(int movieId, double rating) async {
+    try {
+      Map<String, dynamic> body = {"value": rating};
+      String endpoint = '/movie/$movieId/rating';
+      Response response = await httpService.postRequest(endpoint, body);
+      if (response.statusCode == 201) {
+        print('Movie rated successfully');
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
   // Returns the total pages and a list of movies based on the selected category
   Future<Tuple2<List<Movie>, int>> getSelectedMoviesCategory(
     String selectedCategory,

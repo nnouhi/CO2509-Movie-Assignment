@@ -1,6 +1,7 @@
 import 'dart:ui';
 // Packages
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 // Models
@@ -31,12 +32,14 @@ class MainPage extends ConsumerWidget {
   double? _viewportWidth;
   double? _viewportHeight;
   TextEditingController? _searchController;
+  TextEditingController? _rateMovieController;
 
   late MainPageDataController _mainPageDataController;
   late MainPageData _mainPageData;
 
   late CommonWidgets _commonWidgets;
   late BuildContext _context;
+  static int value = 10;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,6 +56,7 @@ class MainPage extends ConsumerWidget {
     _mainPageData = ref.watch(mainPageDataControllerProvider);
 
     _searchController = TextEditingController();
+    _rateMovieController = TextEditingController();
 
     // Every time we are navigated to this page we want to reload the page to fetch any updated data (different language)
     Function(void) _reloadCallback;
@@ -316,6 +320,7 @@ class MainPage extends ConsumerWidget {
                 // Callback to reload page
                 favouriteMovieCallback: (_) =>
                     _mainPageDataController.reloadPage(),
+                rateMovieAction: (movieId) => rateMovieAction(movieId),
               ),
             ),
           );
@@ -328,6 +333,91 @@ class MainPage extends ConsumerWidget {
         ),
       );
     }
+  }
+
+  Function rateMovieAction(int movieId) {
+    return () => showDialog<String>(
+          context: _context,
+          builder: (BuildContext context) => AlertDialog(
+            title: const Text('Rate Movie From 0.5 - 10'),
+            content: TextField(
+              decoration: const InputDecoration(hintText: 'Rate movie...'),
+              enabled: true,
+              controller: _rateMovieController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+              ],
+              onSubmitted: (value) => {
+                if (value.isNotEmpty)
+                  {
+                    // clear value
+                    if (double.parse(value) >= 0.5 && double.parse(value) <= 10)
+                      {
+                        _mainPageDataController
+                            .rateMovie(
+                              movieId,
+                              double.parse(value),
+                            )
+                            .then(
+                              (success) => {
+                                if (success)
+                                  {
+                                    // Show success
+                                    showDialog<String>(
+                                      context: _context,
+                                      builder: (BuildContext context) =>
+                                          AlertDialog(
+                                        title: const Text(
+                                            'Movie rated sucessfully, thank you'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context, 'Okay'),
+                                            child: const Text('Okay'),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  }
+                                else
+                                  {
+                                    // TODO Show error
+                                  }
+                              },
+                            ),
+                      }
+                    else
+                      {
+                        // Out of range error
+                        showDialog<String>(
+                          context: _context,
+                          builder: (BuildContext context) => AlertDialog(
+                            title: const Text('Error'),
+                            content: const Text(
+                              'Please enter a value between 0.5 and 10',
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, 'Okay'),
+                                child: const Text('Okay'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      }
+                  },
+              },
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.pop(context, 'Close'),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
   }
 
   void _sortMovies(List<Movie> list, String sortOder) {

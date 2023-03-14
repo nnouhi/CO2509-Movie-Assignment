@@ -75,6 +75,10 @@ class MainPageDataController extends StateNotifier<MainPageData> {
     }
   }
 
+  Future<bool> rateMovie(int movieId, double rating) async {
+    return await movieService.rateMovie(movieId, rating);
+  }
+
   // Called from main_page.dart when user queries for a movie
   void updateQueryText(String queryText) {
     String lastQueryText = queryText;

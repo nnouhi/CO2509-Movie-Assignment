@@ -1,7 +1,9 @@
-import 'package:co2509_assignment/services/firebase_service.dart';
+// Models
+import 'package:co2509_assignment/models/endpoints.dart';
 
 import '../models/app_config.dart';
-
+// Services
+import '../services/firebase_service.dart';
 // Packages
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
@@ -19,6 +21,39 @@ class HTTPService {
     _firebaseService = getIt<FirebaseService>();
     _baseUrl = config.baseApiUrl;
     _apiKey = config.apiKey;
+  }
+
+  Future<Response> postRequest(
+      String? endpoint, Map<String, dynamic> body) async {
+    try {
+      String? guestSessionId =
+          await _getGuestSessionId(Endpoints.newGuestTokenEndpoint);
+
+      final String url = '$_baseUrl$endpoint';
+
+      Map<String, dynamic> requiredQueryParams = {
+        'api_key': _apiKey,
+        'guest_session_id': guestSessionId,
+      };
+      Map<String, String> headers = {
+        "Content-Type": "application/json;charset=utf-8"
+      };
+
+      Response response = await dio.post(
+        url,
+        queryParameters: requiredQueryParams,
+        options: Options(headers: headers),
+        data: body,
+      );
+
+      if (response.statusCode == 201) {
+        return response;
+      } else {
+        throw Exception(response.statusCode);
+      }
+    } on DioError catch (e) {
+      throw e;
+    }
   }
 
   Future<Response> getRequest(
@@ -42,6 +77,27 @@ class HTTPService {
       );
       if (response.statusCode == 200) {
         return response;
+      } else {
+        throw Exception(response.statusCode);
+      }
+    } on DioError catch (e) {
+      // ignore: use_rethrow_when_possible
+      throw e;
+    }
+  }
+
+  Future<String> _getGuestSessionId(String endpoint) async {
+    try {
+      String url = '$_baseUrl$endpoint';
+      Map<String, dynamic> requiredQueryParams = {
+        'api_key': _apiKey,
+      };
+      Response response = await dio.get(
+        url,
+        queryParameters: requiredQueryParams,
+      );
+      if (response.statusCode == 200) {
+        return response.data['guest_session_id'];
       } else {
         throw Exception(response.statusCode);
       }
