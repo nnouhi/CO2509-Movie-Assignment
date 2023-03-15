@@ -1,15 +1,16 @@
 import 'dart:convert';
 // Packages
-import 'package:co2509_assignment/models/movie.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // Database
 import '../database/database.dart';
 // Models
 import '../models/app_config.dart';
 // Services
+import '../services/sharedpreferences_service.dart';
 import '../services/database_service.dart';
 import '../services/firebase_service.dart';
 import '../services/http_service.dart';
@@ -53,10 +54,7 @@ class _SetUpPageState extends State<SetUpPage> {
     String imageUrl = configData['BASE_IMAGE_URL'];
     String imageNotFoundUrl = configData['IMAGE_NOT_FOUND'];
 
-    MediaQueryData mediaQueryData =
-        MediaQueryData.fromWindow(WidgetsBinding.instance.window);
-    late double width = mediaQueryData.size.width;
-    late double height = mediaQueryData.size.height;
+    dynamic sp = await SharedPreferences.getInstance();
 
     // Initialize Database
     dynamic db =
@@ -74,6 +72,7 @@ class _SetUpPageState extends State<SetUpPage> {
       imageUrl,
       imageNotFoundUrl,
       db,
+      sp,
     );
   }
 
@@ -84,6 +83,7 @@ class _SetUpPageState extends State<SetUpPage> {
     String imageUrL,
     String imageNotFoundUrl,
     dynamic db,
+    dynamic sp,
   ) {
     // Register AppConfig as singleton
     getIt.registerSingleton<AppConfig>(
@@ -93,6 +93,10 @@ class _SetUpPageState extends State<SetUpPage> {
         baseImageUrl: imageUrL,
         imageNotFoundUrl: imageNotFoundUrl,
       ),
+    );
+    // Register SharedPreferences Service as singleton
+    getIt.registerSingleton<SharedPreferencesService>(
+      SharedPreferencesService(sp),
     );
 
     // Register Firebase Service as singleton

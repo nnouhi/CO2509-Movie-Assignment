@@ -1,5 +1,6 @@
 // Models
 import 'package:co2509_assignment/models/endpoints.dart';
+import 'package:co2509_assignment/services/sharedpreferences_service.dart';
 
 import '../models/app_config.dart';
 // Services
@@ -26,14 +27,31 @@ class HTTPService {
   Future<Response> postRequest(
       String? endpoint, Map<String, dynamic> body) async {
     try {
-      String? guestSessionId =
-          await _getGuestSessionId(Endpoints.newGuestTokenEndpoint);
+      // Try and get the guest session id from shared preferences
+      String? sessionId = await getIt
+          .get<SharedPreferencesService>()
+          .getString('guestSessionId');
+
+      print('Session id: $sessionId');
+      // User didn't rate any movies yet, generate him a session id
+      if (sessionId.isEmpty) {
+        Response sessionReponse = await _getGuestSessionId(
+          Endpoints.newGuestTokenEndpoint,
+        );
+
+        if (sessionReponse.statusCode == 200) {
+          sessionId = sessionReponse.data['guest_session_id'];
+          getIt
+              .get<SharedPreferencesService>()
+              .setString('guestSessionId', sessionId!);
+        }
+      }
 
       final String url = '$_baseUrl$endpoint';
 
       Map<String, dynamic> requiredQueryParams = {
         'api_key': _apiKey,
-        'guest_session_id': guestSessionId,
+        'guest_session_id': sessionId,
       };
       Map<String, String> headers = {
         "Content-Type": "application/json;charset=utf-8"
@@ -86,7 +104,7 @@ class HTTPService {
     }
   }
 
-  Future<String> _getGuestSessionId(String endpoint) async {
+  Future<Response> _getGuestSessionId(String endpoint) async {
     try {
       String url = '$_baseUrl$endpoint';
       Map<String, dynamic> requiredQueryParams = {
@@ -96,11 +114,8 @@ class HTTPService {
         url,
         queryParameters: requiredQueryParams,
       );
-      if (response.statusCode == 200) {
-        return response.data['guest_session_id'];
-      } else {
-        throw Exception(response.statusCode);
-      }
+
+      return response;
     } on DioError catch (e) {
       // ignore: use_rethrow_when_possible
       throw e;
