@@ -7,24 +7,15 @@ class FirebaseService {
   late StreamSubscription _streamSubscription;
 
   FirebaseService() {
+    FirebaseDatabase.instance.setPersistenceEnabled(true);
     _databaseReference = FirebaseDatabase.instance.ref();
-    // _streamSubscription = _databaseReference.onValue.listen((event) {
-    //   print(event.snapshot.value);
-    // });
+    _databaseReference.keepSynced(false);
   }
 
   // App Language
   void setOnlineAppLanguage(String language, Function appThemeCallback) {
-    _databaseReference
-        .child('app-preferences')
-        .child('Language')
-        .set(language)
-        .then(
-          (value) => appThemeCallback(),
-        )
-        .catchError(
-          (error) => print('Error: $error'),
-        );
+    _databaseReference.child('app-preferences').child('Language').set(language);
+    appThemeCallback();
   }
 
   Future<String> getOnlineAppLanguage() async {
@@ -45,13 +36,9 @@ class FirebaseService {
     _databaseReference
         .child('app-preferences')
         .child('IsDarkTheme')
-        .set(isDarkTheme)
-        .then(
-          (_) => appThemeCallback(),
-        )
-        .catchError(
-          (error) => print('Error: $error'),
-        );
+        .set(isDarkTheme);
+
+    appThemeCallback();
   }
 
   Future<bool> getOnlineAppTheme() async {

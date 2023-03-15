@@ -44,6 +44,7 @@ dependencies:
   firebase_database: ^10.0.15
   json_annotation: ^4.8.0
   shared_preferences: ^2.0.18
+  connectivity_plus: ^3.0.3
 
 dev_dependencies:
   flutter_test:

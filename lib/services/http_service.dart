@@ -1,10 +1,9 @@
 // Models
-import 'package:co2509_assignment/models/endpoints.dart';
-import 'package:co2509_assignment/services/sharedpreferences_service.dart';
-
+import '../models/endpoints.dart';
 import '../models/app_config.dart';
 // Services
 import '../services/firebase_service.dart';
+import '../services/sharedpreferences_service.dart';
 // Packages
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
@@ -25,30 +24,28 @@ class HTTPService {
   }
 
   Future<Response> postRequest(
-      String? endpoint, Map<String, dynamic> body) async {
+    String? endpoint,
+    Map<String, dynamic> body,
+  ) async {
     try {
       // Try and get the guest session id from shared preferences
       String? sessionId = await getIt
           .get<SharedPreferencesService>()
           .getString('guestSessionId');
 
-      print('Session id: $sessionId');
       // User didn't rate any movies yet, generate him a session id
       if (sessionId.isEmpty) {
         Response sessionReponse = await _getGuestSessionId(
           Endpoints.newGuestTokenEndpoint,
         );
 
-        if (sessionReponse.statusCode == 200) {
-          sessionId = sessionReponse.data['guest_session_id'];
-          getIt
-              .get<SharedPreferencesService>()
-              .setString('guestSessionId', sessionId!);
-        }
+        sessionId = sessionReponse.data['guest_session_id'];
+        getIt
+            .get<SharedPreferencesService>()
+            .setString('guestSessionId', sessionId!);
       }
 
       final String url = '$_baseUrl$endpoint';
-
       Map<String, dynamic> requiredQueryParams = {
         'api_key': _apiKey,
         'guest_session_id': sessionId,
@@ -64,18 +61,17 @@ class HTTPService {
         data: body,
       );
 
-      if (response.statusCode == 201) {
-        return response;
-      } else {
-        throw Exception(response.statusCode);
-      }
+      return response;
     } on DioError catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
   Future<Response> getRequest(
-      String endpoint, Map<String, dynamic>? optionalQueryParams) async {
+    String endpoint,
+    Map<String, dynamic>? optionalQueryParams,
+  ) async {
+    Response response;
     try {
       String? fetchLanguage = await _firebaseService.getOnlineAppLanguage();
       String url = '$_baseUrl$endpoint';
@@ -88,23 +84,22 @@ class HTTPService {
       if (optionalQueryParams != null) {
         requiredQueryParams.addAll(optionalQueryParams);
       }
-      // ISSUE Doesnt take endpoint into account
-      Response response = await dio.get(
+
+      // Perform the request
+      response = await dio.get(
         url,
         queryParameters: requiredQueryParams,
       );
-      if (response.statusCode == 200) {
-        return response;
-      } else {
-        throw Exception(response.statusCode);
-      }
+
+      return response;
     } on DioError catch (e) {
-      // ignore: use_rethrow_when_possible
-      throw e;
+      rethrow;
     }
   }
 
-  Future<Response> _getGuestSessionId(String endpoint) async {
+  Future<Response> _getGuestSessionId(
+    String endpoint,
+  ) async {
     try {
       String url = '$_baseUrl$endpoint';
       Map<String, dynamic> requiredQueryParams = {
@@ -117,12 +112,13 @@ class HTTPService {
 
       return response;
     } on DioError catch (e) {
-      // ignore: use_rethrow_when_possible
-      throw e;
+      rethrow;
     }
   }
 
-  String _getCodeISO(String appLanguage) {
+  String _getCodeISO(
+    String appLanguage,
+  ) {
     switch (appLanguage) {
       case 'English':
         return 'en-US';

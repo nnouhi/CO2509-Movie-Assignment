@@ -1,4 +1,5 @@
 // Packages
+import 'package:co2509_assignment/services/connectivity_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:floor/floor.dart';
 import 'package:json_annotation/json_annotation.dart';

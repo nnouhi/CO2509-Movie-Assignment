@@ -12,8 +12,9 @@ import '../models/selected_category.dart';
 import '../widgets/page_ui.dart';
 import '../widgets/movie_box_add_to_favourites.dart';
 import '../widgets/common_widgets.dart';
-// Controller
+// Controllers
 import '../controllers/main_page_data_controller.dart';
+import '../controllers/update_manager.dart';
 
 final mainPageDataControllerProvider =
     StateNotifierProvider<MainPageDataController, MainPageData>(
@@ -24,13 +25,12 @@ class MainPage extends ConsumerWidget {
   MainPage({
     Key? key,
     required this.isDarkTheme,
-    required this.reloadPage,
   }) : super(key: key);
 
   final bool? isDarkTheme;
-  bool? reloadPage;
   double? _viewportWidth;
   double? _viewportHeight;
+
   TextEditingController? _searchController;
   TextEditingController? _rateMovieController;
 
@@ -39,14 +39,17 @@ class MainPage extends ConsumerWidget {
 
   late CommonWidgets _commonWidgets;
   late BuildContext _context;
-  static int value = 10;
+
+  late UpdateManager _updateManager;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     _viewportWidth = MediaQuery.of(context).size.width;
     _viewportHeight = MediaQuery.of(context).size.height;
-    _commonWidgets = GetIt.instance.get<CommonWidgets>();
     _context = context;
+
+    _commonWidgets = GetIt.instance.get<CommonWidgets>();
+    _updateManager = GetIt.instance.get<UpdateManager>();
 
     // Monitor these providers
     // Controller
@@ -58,12 +61,13 @@ class MainPage extends ConsumerWidget {
     _searchController = TextEditingController();
     _rateMovieController = TextEditingController();
 
-    // Every time we are navigated to this page we want to reload the page to fetch any updated data (different language)
+    // Check if there was an update and reload the page
+    // For example if the user changed language from landing page
     Function(void) _reloadCallback;
-    if (reloadPage!) {
-      reloadPage = false;
+    if (_updateManager.getMainPageDirtyState()) {
+      _updateManager.setMainPageAsDirty(false);
       _reloadCallback = (void _) {
-        _mainPageDataController.updateMoviesGategory(
+        _mainPageDataController.updateMoviesCategory(
           _mainPageData.page!,
           _mainPageData.searchCaterogy,
           true,
@@ -83,29 +87,29 @@ class MainPage extends ConsumerWidget {
   }
 
   // Blurred background widget
-  Widget _backgroundWidget() {
-    return Container(
-      width: _viewportWidth,
-      height: _viewportHeight,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        image: const DecorationImage(
-          image: NetworkImage(
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDz5Uisa_7qIZdKg6ui3F7wZ4cUlIsrNxhFvce4k3kcQ&s',
-          ),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.2),
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _backgroundWidget() {
+  //   return Container(
+  //     width: _viewportWidth,
+  //     height: _viewportHeight,
+  //     decoration: BoxDecoration(
+  //       borderRadius: BorderRadius.circular(10.0),
+  //       image: const DecorationImage(
+  //         image: NetworkImage(
+  //           'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDz5Uisa_7qIZdKg6ui3F7wZ4cUlIsrNxhFvce4k3kcQ&s',
+  //         ),
+  //         fit: BoxFit.cover,
+  //       ),
+  //     ),
+  //     child: BackdropFilter(
+  //       filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+  //       child: Container(
+  //         decoration: BoxDecoration(
+  //           color: Colors.black.withOpacity(0.2),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   // Search bar and movies list view widget
   Widget _foregroundWidgets() {
@@ -149,7 +153,7 @@ class MainPage extends ConsumerWidget {
             // Previous Page
             _commonWidgets.getElevatedButtons(
               '<',
-              () => _mainPageDataController.updateMoviesGategory(
+              () => _mainPageDataController.updateMoviesCategory(
                 _mainPageData.page! - 1,
                 _mainPageData.searchCaterogy,
                 true,
@@ -165,7 +169,7 @@ class MainPage extends ConsumerWidget {
             // Next Page
             _commonWidgets.getElevatedButtons(
               '>',
-              () => _mainPageDataController.updateMoviesGategory(
+              () => _mainPageDataController.updateMoviesCategory(
                 _mainPageData.page! + 1,
                 _mainPageData.searchCaterogy,
                 true,
@@ -255,7 +259,7 @@ class MainPage extends ConsumerWidget {
               {
                 if (selectedCategory != _mainPageData.searchCaterogy)
                   {
-                    _mainPageDataController.updateMoviesGategory(
+                    _mainPageDataController.updateMoviesCategory(
                       1,
                       selectedCategory,
                       false,
@@ -318,8 +322,10 @@ class MainPage extends ConsumerWidget {
                 height: _viewportHeight! * 0.27, // 0.20 default
                 movie: movies[index],
                 // Callback to reload page
-                favouriteMovieCallback: (_) =>
-                    _mainPageDataController.reloadPage(),
+                favouriteMovieCallback: (_) => {
+                  _updateManager.setFavouriteMoviesAsDirty(true),
+                  _mainPageDataController.reloadPage()
+                },
                 rateMovieAction: (movieId) => rateMovieAction(movieId),
               ),
             ),
@@ -327,9 +333,24 @@ class MainPage extends ConsumerWidget {
         },
       );
     } else {
-      return const Center(
-        child: CircularProgressIndicator(
-          backgroundColor: Colors.white,
+      return Container(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              Text(
+                'No movies found...',
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+              CircularProgressIndicator(
+                backgroundColor: Colors.white,
+              ),
+            ],
+          ),
         ),
       );
     }

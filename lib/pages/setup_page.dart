@@ -1,5 +1,6 @@
 import 'dart:convert';
 // Packages
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import '../database/database.dart';
 // Models
 import '../models/app_config.dart';
 // Services
+import '../services/connectivity_service.dart';
 import '../services/sharedpreferences_service.dart';
 import '../services/database_service.dart';
 import '../services/firebase_service.dart';
@@ -17,6 +19,8 @@ import '../services/http_service.dart';
 import '../services/movie_service.dart';
 // Widgets
 import '../widgets/common_widgets.dart';
+// Controllers
+import '../controllers/update_manager.dart';
 
 class SetUpPage extends StatefulWidget {
   final VoidCallback onInitComplete;
@@ -54,6 +58,10 @@ class _SetUpPageState extends State<SetUpPage> {
     String imageUrl = configData['BASE_IMAGE_URL'];
     String imageNotFoundUrl = configData['IMAGE_NOT_FOUND'];
 
+    // Get Connectivity instance
+    dynamic cp = Connectivity();
+
+    // Get  SharedPreferences instance
     dynamic sp = await SharedPreferences.getInstance();
 
     // Initialize Database
@@ -73,6 +81,7 @@ class _SetUpPageState extends State<SetUpPage> {
       imageNotFoundUrl,
       db,
       sp,
+      cp,
     );
   }
 
@@ -84,6 +93,7 @@ class _SetUpPageState extends State<SetUpPage> {
     String imageNotFoundUrl,
     dynamic db,
     dynamic sp,
+    dynamic cp,
   ) {
     // Register AppConfig as singleton
     getIt.registerSingleton<AppConfig>(
@@ -94,6 +104,17 @@ class _SetUpPageState extends State<SetUpPage> {
         imageNotFoundUrl: imageNotFoundUrl,
       ),
     );
+
+    // Register Update Manager as singleton
+    getIt.registerSingleton<UpdateManager>(
+      UpdateManager(),
+    );
+
+    // Register Connectivity Service as singleton
+    getIt.registerSingleton<ConnectivityService>(
+      ConnectivityService(cp),
+    );
+
     // Register SharedPreferences Service as singleton
     getIt.registerSingleton<SharedPreferencesService>(
       SharedPreferencesService(sp),

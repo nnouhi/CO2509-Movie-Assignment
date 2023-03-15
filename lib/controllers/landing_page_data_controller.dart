@@ -30,16 +30,13 @@ class LandingPageDataController extends StateNotifier<LandingPageData> {
     );
   }
 
-  void updateAppTheme(String? appTheme) {
-    bool isDarkTheme = appTheme == 'Dark Theme' ? true : false;
-    if (isDarkTheme != state.isDarkTheme) {
-      _firebaseService.setOnlineAppTheme(
-        isDarkTheme,
-        () => state = state.copyWith(
-          isDarkTheme: isDarkTheme,
-        ),
-      );
-    }
+  void updateAppTheme(bool isDarkTheme) {
+    _firebaseService.setOnlineAppTheme(
+      isDarkTheme,
+      () => state = state.copyWith(
+        isDarkTheme: isDarkTheme,
+      ),
+    );
   }
 
   void updateAppLanguage(String? appLanguage) {

@@ -21,14 +21,9 @@ class MovieService {
       Map<String, dynamic> body = {"value": rating};
       String endpoint = '/movie/$movieId/rating';
       Response response = await httpService.postRequest(endpoint, body);
-      if (response.statusCode == 201) {
-        print('Movie rated successfully');
-        return true;
-      } else {
-        return false;
-      }
+
+      return true;
     } catch (e) {
-      print(e);
       return false;
     }
   }
@@ -41,25 +36,24 @@ class MovieService {
     try {
       Map<String, dynamic> additionalQueryParams = {'page': page};
       String endpoint = _getEndpoint(selectedCategory);
+
       Response? response = await httpService.getRequest(
         endpoint,
         additionalQueryParams,
       );
-      // Success
-      if (response.statusCode! == 200) {
-        Map data = response.data;
-        // Call Movie.fromJson to obtain a new instane of Movie
-        List<Movie> movies = [];
-        movies = data['results'].map<Movie>((movieData) {
+
+      Map data = response.data;
+      // Call Movie.fromJson to obtain a new instane of Movie
+      List<Movie> movies = [];
+      movies = data['results'].map<Movie>(
+        (movieData) {
           return Movie.fromJson(movieData);
-        }).toList();
-        return Tuple2(movies, data['total_pages']);
-      } else {
-        throw Exception(response.statusCode);
-      }
+        },
+      ).toList();
+
+      return Tuple2(movies, data['total_pages']);
     } catch (e) {
-      print(e);
-      return Tuple2([], 0);
+      return const Tuple2([], 0);
     }
   }
 
@@ -78,21 +72,19 @@ class MovieService {
         Endpoints.searchMoviedEndpoint,
         additionalQueryParams,
       );
-      // Success
-      if (response.statusCode == 200) {
-        Map data = response.data;
-        // Call Movie.fromJson to obtain a new instane of Movie
-        List<Movie> movies = [];
-        movies = data['results'].map<Movie>((movieData) {
+
+      Map data = response.data;
+      // Call Movie.fromJson to obtain a new instane of Movie
+      List<Movie> movies = [];
+      movies = data['results'].map<Movie>(
+        (movieData) {
           return Movie.fromJson(movieData);
-        }).toList();
-        return Tuple2(movies, data['total_pages']);
-      } else {
-        throw Exception(response.statusCode);
-      }
+        },
+      ).toList();
+
+      return Tuple2(movies, data['total_pages']);
     } catch (e) {
-      print(e);
-      return Tuple2([], 0);
+      return const Tuple2([], 0);
     }
   }
 

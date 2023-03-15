@@ -1,5 +1,6 @@
 import 'dart:ui';
 // Controllers
+import '../controllers/update_manager.dart';
 import '../controllers/landing_page_data_controller.dart';
 // Models
 import '../models/landing_page_data.dart';
@@ -28,12 +29,14 @@ class LandingPage extends ConsumerWidget {
   late double _viewportWidth;
   late double _viewportHeight;
 
-  bool _changeLanguage = false;
   late BuildContext _context;
 
+  late UpdateManager _updateManager;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     _commonWidgets = GetIt.instance.get<CommonWidgets>();
+    _updateManager = GetIt.instance.get<UpdateManager>();
+
     _viewportWidth = MediaQuery.of(context).size.width;
     _viewportHeight = MediaQuery.of(context).size.height;
     _context = context;
@@ -45,6 +48,7 @@ class LandingPage extends ConsumerWidget {
     // Data from the controller
     _landingPageData = ref.watch(landingPageDataControllerProvider);
 
+    // Build the UI
     return PageUI(
       _viewportWidth,
       _viewportHeight,
@@ -55,29 +59,29 @@ class LandingPage extends ConsumerWidget {
   }
 
   // Blurred background widget
-  Widget _backgroundWidget() {
-    return Container(
-      width: _viewportWidth,
-      height: _viewportHeight,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        image: const DecorationImage(
-          image: NetworkImage(
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDz5Uisa_7qIZdKg6ui3F7wZ4cUlIsrNxhFvce4k3kcQ&s',
-          ),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.2),
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _backgroundWidget() {
+  //   return Container(
+  //     width: _viewportWidth,
+  //     height: _viewportHeight,
+  //     decoration: BoxDecoration(
+  //       borderRadius: BorderRadius.circular(10.0),
+  //       image: const DecorationImage(
+  //         image: NetworkImage(
+  //           'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDz5Uisa_7qIZdKg6ui3F7wZ4cUlIsrNxhFvce4k3kcQ&s',
+  //         ),
+  //         fit: BoxFit.cover,
+  //       ),
+  //     ),
+  //     child: BackdropFilter(
+  //       filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+  //       child: Container(
+  //         decoration: BoxDecoration(
+  //           color: Colors.black.withOpacity(0.2),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _foregroundWidgets() {
     return Center(
@@ -157,7 +161,6 @@ class LandingPage extends ConsumerWidget {
                 builder: (context) => MainPage(
                   key: UniqueKey(),
                   isDarkTheme: _landingPageData.isDarkTheme!,
-                  reloadPage: true,
                 ),
               ),
             ),
@@ -170,7 +173,6 @@ class LandingPage extends ConsumerWidget {
                 builder: (context) => FavouriteMoviesPage(
                   key: UniqueKey(),
                   isDarkTheme: _landingPageData.isDarkTheme!,
-                  reloadPage: true,
                 ),
               ),
             ),
@@ -249,15 +251,23 @@ class LandingPage extends ConsumerWidget {
   }
 
   Widget _themeSelectionWidget() {
+    bool isDarkTheme;
     return DropdownButton(
       dropdownColor: Colors.black38,
       value: (_landingPageData.isDarkTheme!) ? 'Dark Theme' : 'Light Theme',
       icon: const Icon(
         Icons.arrow_drop_down,
       ),
-      onChanged: ((selectedTheme) => _landingPageDataController.updateAppTheme(
-            selectedTheme.toString(),
-          )),
+      onChanged: ((selectedTheme) => {
+            // Don't update the theme if the selected theme is the same as the current theme
+            isDarkTheme = (selectedTheme == 'Dark Theme') ? true : false,
+            if (isDarkTheme != _landingPageData.isDarkTheme)
+              {
+                _landingPageDataController.updateAppTheme(
+                  isDarkTheme,
+                )
+              },
+          }),
       items: [
         _commonWidgets.getDropDownItems('Dark Theme'),
         _commonWidgets.getDropDownItems('Light Theme'),
@@ -273,8 +283,10 @@ class LandingPage extends ConsumerWidget {
         Icons.arrow_drop_down,
       ),
       onChanged: ((selectedLanguage) => {
+            // Don't update the language if the selected language is the same as the current language
             if (selectedLanguage.toString() != _landingPageData.appLanguage)
               {
+                _updateManager.setMainPageAsDirty(true),
                 _landingPageDataController
                     .updateAppLanguage(selectedLanguage.toString())
               }

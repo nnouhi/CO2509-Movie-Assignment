@@ -5,6 +5,7 @@ import '../models/main_page_data.dart';
 
 // Services
 import '../services/movie_service.dart';
+import '../services/connectivity_service.dart';
 
 // Packages
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,6 +27,11 @@ class MainPageDataController extends StateNotifier<MainPageData> {
     String? lastQueryText,
   ) async {
     try {
+      bool connection =
+          await GetIt.instance.get<ConnectivityService>().getConnectionState();
+      if (!connection) {
+        return;
+      }
       List<Movie> movies = [];
       int totalPages = 0;
       String passedQueryText = queryText!;
@@ -98,14 +104,17 @@ class MainPageDataController extends StateNotifier<MainPageData> {
   }
 
   // Called from main_page.dart when user changes the movies category
-  void updateMoviesGategory(
+  void updateMoviesCategory(
     int? page,
     String? newSearchCategory,
     bool? keepLastQueryText,
   ) {
     // Handle invalid page number
-    if ((page! > state.totalPages!) || (page < 1)) {
-      return;
+    // temp fix
+    if (state.totalPages! != 0) {
+      if ((page! > state.totalPages!) || (page < 1)) {
+        return;
+      }
     }
 
     // If keepLastQueryText is true, we want to keep the last query text because the user is navigating the pages of the search results

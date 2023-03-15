@@ -1,5 +1,6 @@
 import 'dart:ui';
 // Packages
+import 'package:co2509_assignment/controllers/update_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
@@ -23,14 +24,11 @@ class FavouriteMoviesPage extends ConsumerWidget {
   FavouriteMoviesPage({
     Key? key,
     required this.isDarkTheme,
-    required this.reloadPage,
   }) : super(key: key);
 
-  bool? reloadPage;
   final bool? isDarkTheme;
   double? _viewportWidth;
   double? _viewportHeight;
-  TextEditingController? _searchController;
 
   late FavouriteMoviesPageDataController _favouriteMoviesPageDataController;
   late FavouriteMoviesPageData _favouriteMoviesPageData;
@@ -38,11 +36,14 @@ class FavouriteMoviesPage extends ConsumerWidget {
   late CommonWidgets _commonWidgets;
   late BuildContext _context;
 
+  late UpdateManager _updateManager;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     _viewportWidth = MediaQuery.of(context).size.width;
     _viewportHeight = MediaQuery.of(context).size.height;
     _commonWidgets = GetIt.instance.get<CommonWidgets>();
+    _updateManager = GetIt.instance.get<UpdateManager>();
     _context = context;
 
     // Monitor these providers
@@ -53,12 +54,11 @@ class FavouriteMoviesPage extends ConsumerWidget {
     _favouriteMoviesPageData =
         ref.watch(favouriteMoviesPageDataControllerProvider);
 
-    _searchController = TextEditingController();
-
-    // Every time we are navigated to this page we want to reload the page to fetch any updated data (new fav movies)
+    // Check if there is an update available (for example: main page adds a movie to favourites,
+    //  we need to reload this page and show the new movie)
     Function(void) _reloadCallback;
-    if (reloadPage!) {
-      reloadPage = false;
+    if (_updateManager.getFavouriteMoviesDirtyState()) {
+      _updateManager.setFavouriteMoviesAsDirty(false);
       _reloadCallback = (void _) {
         _favouriteMoviesPageDataController.reloadPage();
       };
@@ -76,29 +76,29 @@ class FavouriteMoviesPage extends ConsumerWidget {
   }
 
   // Blurred background widget
-  Widget _backgroundWidget() {
-    return Container(
-      width: _viewportWidth,
-      height: _viewportHeight,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        image: const DecorationImage(
-          image: NetworkImage(
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDz5Uisa_7qIZdKg6ui3F7wZ4cUlIsrNxhFvce4k3kcQ&s',
-          ),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.2),
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _backgroundWidget() {
+  //   return Container(
+  //     width: _viewportWidth,
+  //     height: _viewportHeight,
+  //     decoration: BoxDecoration(
+  //       borderRadius: BorderRadius.circular(10.0),
+  //       image: const DecorationImage(
+  //         image: NetworkImage(
+  //           'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDz5Uisa_7qIZdKg6ui3F7wZ4cUlIsrNxhFvce4k3kcQ&s',
+  //         ),
+  //         fit: BoxFit.cover,
+  //       ),
+  //     ),
+  //     child: BackdropFilter(
+  //       filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+  //       child: Container(
+  //         decoration: BoxDecoration(
+  //           color: Colors.black.withOpacity(0.2),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   // Search bar and movies list view widget
   Widget _foregroundWidgets() {
@@ -223,8 +223,13 @@ class FavouriteMoviesPage extends ConsumerWidget {
       );
     } else {
       return const Center(
-        child: CircularProgressIndicator(
-          backgroundColor: Colors.white,
+        child: Text(
+          "No movies in favourites, add movies from the main page by clicking the 'Add to favourites button'",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
         ),
       );
     }
