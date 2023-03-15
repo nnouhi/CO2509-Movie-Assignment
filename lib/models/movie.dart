@@ -1,10 +1,14 @@
 // Packages
 import 'package:get_it/get_it.dart';
 import 'package:floor/floor.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 // Models
 import '../models/app_config.dart';
 
+part 'movie.g.dart';
+
+@JsonSerializable(explicitToJson: true)
 @entity
 class Movie {
   @primaryKey
@@ -29,31 +33,9 @@ class Movie {
   });
 
   // Instantiate and return a new Movie object from a JSON object
-  factory Movie.fromJson(Map<String, dynamic> json) {
-    return Movie(
-      posterPath: json['poster_path'],
-      adult: json['adult'],
-      overview: json['overview'],
-      releaseDate: json['release_date'],
-      id: json['id'],
-      originalLanguage: json['original_language'],
-      title: json['title'],
-      voteAverage: json['vote_average'].toDouble(),
-    );
-  }
+  factory Movie.fromJson(Map<String, dynamic> json) => _$MovieFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['poster_path'] = posterPath;
-    data['adult'] = adult;
-    data['overview'] = overview;
-    data['release_date'] = releaseDate;
-    data['id'] = id;
-    data['original_language'] = originalLanguage;
-    data['title'] = title;
-    data['vote_average'] = voteAverage;
-    return data;
-  }
+  Map<String, dynamic> toJson() => _$MovieToJson(this);
 
   String getPosterUrl() {
     final GetIt getIt = GetIt.instance;
