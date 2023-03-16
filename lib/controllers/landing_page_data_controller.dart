@@ -1,11 +1,11 @@
 // Packages
 import 'package:get_it/get_it.dart';
-
-import '../services/firebase_service.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// Services
+import '../services/firebase_service.dart';
 // Models
 import '../models/landing_page_data.dart';
+import 'app_manager.dart';
 
 class LandingPageDataController extends StateNotifier<LandingPageData> {
   late FirebaseService _firebaseService;
@@ -21,12 +21,12 @@ class LandingPageDataController extends StateNotifier<LandingPageData> {
 
   void _getLandingPageData() async {
     _isDarkTheme = await _firebaseService.getOnlineAppTheme();
+    _appLanguage = await _firebaseService.getOnlineAppLanguage();
+    bool hasNetworkConnection = GetIt.instance.get<AppManager>().isConnected();
     state = state.copyWith(
       isDarkTheme: _isDarkTheme,
-    );
-    _appLanguage = await _firebaseService.getOnlineAppLanguage();
-    state = state.copyWith(
       appLanguage: _appLanguage,
+      hasNetworkConnection: hasNetworkConnection,
     );
   }
 
@@ -45,6 +45,13 @@ class LandingPageDataController extends StateNotifier<LandingPageData> {
       () => state = state.copyWith(
         appLanguage: appLanguage,
       ),
+    );
+  }
+
+  void reloadPage() async {
+    bool hasNetworkConnection = GetIt.instance.get<AppManager>().isConnected();
+    state = state.copyWith(
+      hasNetworkConnection: hasNetworkConnection,
     );
   }
 

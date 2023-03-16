@@ -20,7 +20,7 @@ import '../services/movie_service.dart';
 // Widgets
 import '../widgets/common_widgets.dart';
 // Controllers
-import '../controllers/update_manager.dart';
+import '../controllers/app_manager.dart';
 
 class SetUpPage extends StatefulWidget {
   final VoidCallback onInitComplete;
@@ -106,8 +106,8 @@ class _SetUpPageState extends State<SetUpPage> {
     );
 
     // Register Update Manager as singleton
-    getIt.registerSingleton<UpdateManager>(
-      UpdateManager(),
+    getIt.registerSingleton<AppManager>(
+      AppManager(),
     );
 
     // Register Connectivity Service as singleton

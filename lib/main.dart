@@ -1,21 +1,25 @@
 // Packages
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get_it/get_it.dart';
 // Pages
 import '../pages/setup_page.dart';
-import '../pages/main_page.dart';
 import '../pages/landing_page.dart';
+// Services
+import '../services/connectivity_service.dart';
 
 void main() {
   runApp(
     SetUpPage(
       key: UniqueKey(),
-      onInitComplete: () => runApp(
-        ProviderScope(
-          child: MainApp(),
+      onInitComplete: () => {
+        GetIt.instance.get<ConnectivityService>().subscribe(),
+        runApp(
+          ProviderScope(
+            child: MainApp(),
+          ),
         ),
-      ),
+      },
     ),
   );
 }

@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 // Models
 import '../models/main_page_data.dart';
 import '../models/movie.dart';
+import '../models/pages.dart';
 import '../models/selected_category.dart';
 // Widgets
 import '../widgets/page_ui.dart';
@@ -14,7 +15,9 @@ import '../widgets/movie_box_add_to_favourites.dart';
 import '../widgets/common_widgets.dart';
 // Controllers
 import '../controllers/main_page_data_controller.dart';
-import '../controllers/update_manager.dart';
+import '../controllers/app_manager.dart';
+// Services
+import '../services/connectivity_service.dart';
 
 final mainPageDataControllerProvider =
     StateNotifierProvider<MainPageDataController, MainPageData>(
@@ -40,7 +43,11 @@ class MainPage extends ConsumerWidget {
   late CommonWidgets _commonWidgets;
   late BuildContext _context;
 
-  late UpdateManager _updateManager;
+  late AppManager _appManager;
+  late ConnectivityService _connectivityService;
+
+  late Function _onConnectivityEstablishedCallback;
+  late Function _onConnectivityLostCallback;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -49,7 +56,28 @@ class MainPage extends ConsumerWidget {
     _context = context;
 
     _commonWidgets = GetIt.instance.get<CommonWidgets>();
-    _updateManager = GetIt.instance.get<UpdateManager>();
+    _appManager = GetIt.instance.get<AppManager>();
+    _connectivityService = GetIt.instance.get<ConnectivityService>();
+    _appManager.setCurrentPage(Pages.MainPage);
+
+    // Callbacks
+    _onConnectivityEstablishedCallback = () {
+      _mainPageDataController.updateMoviesCategory(
+        _mainPageData.page!,
+        _mainPageData.searchCaterogy,
+        true,
+      );
+    };
+    _onConnectivityLostCallback = () {
+      _appManager.setLandingPageAsDirty(true);
+      print('set landing page as dirty');
+    };
+
+    // Set Callbacks
+    _connectivityService.setOnConnectivityEstablishedCallback(
+        _onConnectivityEstablishedCallback);
+    _connectivityService
+        .setOnConnectivityLostCallback(_onConnectivityLostCallback);
 
     // Monitor these providers
     // Controller
@@ -64,8 +92,8 @@ class MainPage extends ConsumerWidget {
     // Check if there was an update and reload the page
     // For example if the user changed language from landing page
     Function(void) _reloadCallback;
-    if (_updateManager.getMainPageDirtyState()) {
-      _updateManager.setMainPageAsDirty(false);
+    if (_appManager.getMainPageDirtyState()) {
+      _appManager.setMainPageAsDirty(false);
       _reloadCallback = (void _) {
         _mainPageDataController.updateMoviesCategory(
           _mainPageData.page!,
@@ -323,7 +351,7 @@ class MainPage extends ConsumerWidget {
                 movie: movies[index],
                 // Callback to reload page
                 favouriteMovieCallback: (_) => {
-                  _updateManager.setFavouriteMoviesAsDirty(true),
+                  _appManager.setFavouriteMoviesAsDirty(true),
                   _mainPageDataController.reloadPage()
                 },
                 rateMovieAction: (movieId) => rateMovieAction(movieId),

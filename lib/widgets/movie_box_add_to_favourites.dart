@@ -1,4 +1,5 @@
 // Packages
+import 'package:co2509_assignment/controllers/app_manager.dart';
 import 'package:co2509_assignment/widgets/common_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -44,13 +45,21 @@ class MovieBoxAddToFavourites extends StatelessWidget {
 
   // Movie poster (image) widget
   Widget _moviePosterWidget() {
+    ImageProvider imageProvider;
+    if (GetIt.instance.get<AppManager>().isConnected()) {
+      // Load image from network URL
+      imageProvider = NetworkImage(movie.getPosterUrl());
+    } else {
+      // Load image from local asset file
+      imageProvider = const AssetImage('assets/images/image_not_found.jpg');
+    }
     return Container(
       width: width * 0.35,
       height: height,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
         image: DecorationImage(
-          image: NetworkImage(movie.getPosterUrl()),
+          image: imageProvider,
         ),
       ),
     );
@@ -58,11 +67,23 @@ class MovieBoxAddToFavourites extends StatelessWidget {
 
   // General movie info widget
   Widget _movieInfoWidget() {
+    Widget addToFavouritesButton;
+    Widget rateMovieButton;
     // If movie is already in favourites, don't show the favourite button
-    Widget addToFavouritesButton =
-        (getIt.get<DatabaseService>().existsInFavourites(movie.id!))
-            ? Container()
-            : _addToFavouritesButtonWidget();
+    if (getIt.get<DatabaseService>().existsInFavourites(movie.id!)) {
+      addToFavouritesButton = Container();
+    } else {
+      addToFavouritesButton = _addToFavouritesButtonWidget();
+    }
+
+    if (getIt.get<AppManager>().isConnected()) {
+      rateMovieButton = getIt.get<CommonWidgets>().getElevatedButtons(
+            'Rate Movie',
+            rateMovieAction(movie.id!),
+          );
+    } else {
+      rateMovieButton = Container();
+    }
 
     return Container(
       height: height,
@@ -128,10 +149,7 @@ class MovieBoxAddToFavourites extends StatelessWidget {
             children: [
               // Add to favourite button
               addToFavouritesButton,
-              getIt.get<CommonWidgets>().getElevatedButtons(
-                    'Rate Movie',
-                    rateMovieAction(movie.id!),
-                  )
+              rateMovieButton,
             ],
           ),
         ],

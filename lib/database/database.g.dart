@@ -61,7 +61,7 @@ class _$AppDatabase extends AppDatabase {
     changeListener = listener ?? StreamController<String>.broadcast();
   }
 
-  FavouriteMoviesDao? _moviesDaoInstance;
+  Dao? _moviesDaoInstance;
 
   Future<sqflite.Database> open(
     String path,
@@ -69,7 +69,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: 4,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -86,6 +86,10 @@ class _$AppDatabase extends AppDatabase {
       onCreate: (database, version) async {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Movie` (`id` INTEGER, `posterPath` TEXT, `adult` INTEGER, `overview` TEXT, `releaseDate` TEXT, `originalLanguage` TEXT, `title` TEXT, `voteAverage` REAL NOT NULL, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `MovieCategories` (`categoryId` INTEGER, `categoryName` TEXT, PRIMARY KEY (`categoryId`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `OfflineMovies` (`id` INTEGER, `movieId` INTEGER, `posterPath` TEXT, `adult` INTEGER, `overview` TEXT, `releaseDate` TEXT, `originalLanguage` TEXT, `title` TEXT, `voteAverage` REAL NOT NULL, `category_id` INTEGER, FOREIGN KEY (`category_id`) REFERENCES `MovieCategories` (`categoryId`) ON UPDATE NO ACTION ON DELETE NO ACTION, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -94,14 +98,13 @@ class _$AppDatabase extends AppDatabase {
   }
 
   @override
-  FavouriteMoviesDao get moviesDao {
-    return _moviesDaoInstance ??=
-        _$FavouriteMoviesDao(database, changeListener);
+  Dao get moviesDao {
+    return _moviesDaoInstance ??= _$Dao(database, changeListener);
   }
 }
 
-class _$FavouriteMoviesDao extends FavouriteMoviesDao {
-  _$FavouriteMoviesDao(
+class _$Dao extends Dao {
+  _$Dao(
     this.database,
     this.changeListener,
   )   : _queryAdapter = QueryAdapter(database, changeListener),
@@ -119,6 +122,28 @@ class _$FavouriteMoviesDao extends FavouriteMoviesDao {
                   'voteAverage': item.voteAverage
                 },
             changeListener),
+        _movieCategoriesInsertionAdapter = InsertionAdapter(
+            database,
+            'MovieCategories',
+            (MovieCategories item) => <String, Object?>{
+                  'categoryId': item.categoryId,
+                  'categoryName': item.categoryName
+                }),
+        _offlineMoviesInsertionAdapter = InsertionAdapter(
+            database,
+            'OfflineMovies',
+            (OfflineMovies item) => <String, Object?>{
+                  'id': item.id,
+                  'movieId': item.movieId,
+                  'posterPath': item.posterPath,
+                  'adult': item.adult == null ? null : (item.adult! ? 1 : 0),
+                  'overview': item.overview,
+                  'releaseDate': item.releaseDate,
+                  'originalLanguage': item.originalLanguage,
+                  'title': item.title,
+                  'voteAverage': item.voteAverage,
+                  'category_id': item.categoryId
+                }),
         _movieDeletionAdapter = DeletionAdapter(
             database,
             'Movie',
@@ -142,6 +167,10 @@ class _$FavouriteMoviesDao extends FavouriteMoviesDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<Movie> _movieInsertionAdapter;
+
+  final InsertionAdapter<MovieCategories> _movieCategoriesInsertionAdapter;
+
+  final InsertionAdapter<OfflineMovies> _offlineMoviesInsertionAdapter;
 
   final DeletionAdapter<Movie> _movieDeletionAdapter;
 
@@ -182,8 +211,57 @@ class _$FavouriteMoviesDao extends FavouriteMoviesDao {
   }
 
   @override
+  Future<List<MovieCategories>> getCategories() async {
+    return _queryAdapter.queryList('SELECT * FROM MovieCategories',
+        mapper: (Map<String, Object?> row) => MovieCategories(
+            categoryId: row['categoryId'] as int?,
+            categoryName: row['categoryName'] as String?));
+  }
+
+  @override
+  Future<void> deleteAllOfflineMovies() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM OfflineMovies');
+  }
+
+  @override
+  Future<List<OfflineMovies>> getOfflineMovies(int categoryId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM OfflineMovies OM INNER JOIN MovieCategories MC ON OM.category_id = MC.categoryId WHERE MC.categoryId = ?1',
+        mapper: (Map<String, Object?> row) => OfflineMovies(id: row['id'] as int?, posterPath: row['posterPath'] as String?, adult: row['adult'] == null ? null : (row['adult'] as int) != 0, overview: row['overview'] as String?, releaseDate: row['releaseDate'] as String?, movieId: row['movieId'] as int?, originalLanguage: row['originalLanguage'] as String?, title: row['title'] as String?, voteAverage: row['voteAverage'] as double, categoryId: row['category_id'] as int?),
+        arguments: [categoryId]);
+  }
+
+  @override
+  Future<List<OfflineMovies>> getAllOfflineMovies() async {
+    return _queryAdapter.queryList('SELECT * FROM OfflineMovies',
+        mapper: (Map<String, Object?> row) => OfflineMovies(
+            id: row['id'] as int?,
+            posterPath: row['posterPath'] as String?,
+            adult: row['adult'] == null ? null : (row['adult'] as int) != 0,
+            overview: row['overview'] as String?,
+            releaseDate: row['releaseDate'] as String?,
+            movieId: row['movieId'] as int?,
+            originalLanguage: row['originalLanguage'] as String?,
+            title: row['title'] as String?,
+            voteAverage: row['voteAverage'] as double,
+            categoryId: row['category_id'] as int?));
+  }
+
+  @override
   Future<void> addFavouriteMovie(Movie movie) async {
     await _movieInsertionAdapter.insert(movie, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> addCategory(MovieCategories movieCategories) async {
+    await _movieCategoriesInsertionAdapter.insert(
+        movieCategories, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> addOfflineMovies(List<OfflineMovies> movies) async {
+    await _offlineMoviesInsertionAdapter.insertList(
+        movies, OnConflictStrategy.abort);
   }
 
   @override

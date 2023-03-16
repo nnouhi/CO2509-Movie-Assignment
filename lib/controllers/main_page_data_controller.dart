@@ -1,15 +1,18 @@
+// Controllers
+import '../controllers/app_manager.dart';
 // Models
+import '../models/categories.dart';
 import '../models/selected_category.dart';
 import '../models/movie.dart';
 import '../models/main_page_data.dart';
-
 // Services
 import '../services/movie_service.dart';
-import '../services/connectivity_service.dart';
-
+import '../services/database_service.dart';
 // Packages
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
+// Entities
+import '../entities/offline_movies.dart';
 
 class MainPageDataController extends StateNotifier<MainPageData> {
   MainPageDataController([MainPageData? state])
@@ -27,11 +30,42 @@ class MainPageDataController extends StateNotifier<MainPageData> {
     String? lastQueryText,
   ) async {
     try {
-      bool connection =
-          await GetIt.instance.get<ConnectivityService>().getConnectionState();
-      if (!connection) {
+      bool connection = GetIt.instance.get<AppManager>().isConnected();
+      // If the user lost connection and he is not in page 1 we dont want to show him
+      // the offline movies which are in page 1
+      if (!connection && state.page != 1) {
+        return;
+      } else if (!connection && state.page == 1) {
+        List<Movie> movies = [];
+        List<OfflineMovies> offlineMovies = await GetIt.instance
+            .get<DatabaseService>()
+            .getOfflineMovies(categories[searchCategory]!);
+        for (var offlineMovie in offlineMovies) {
+          // Create movie instance from offline movies
+          movies.add(
+            Movie(
+              id: offlineMovie.movieId,
+              title: offlineMovie.title,
+              overview: offlineMovie.overview,
+              posterPath: offlineMovie.posterPath,
+              releaseDate: offlineMovie.releaseDate,
+              voteAverage: offlineMovie.voteAverage,
+              adult: offlineMovie.adult,
+              originalLanguage: offlineMovie.originalLanguage,
+            ),
+          );
+        }
+
+        state = state.copyWith(
+            searchCaterogy: searchCategory,
+            page: 1,
+            displayedMovies: movies,
+            queryText: '',
+            totalPages: 1,
+            lastQueryText: lastQueryText);
         return;
       }
+
       List<Movie> movies = [];
       int totalPages = 0;
       String passedQueryText = queryText!;

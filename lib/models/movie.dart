@@ -9,7 +9,7 @@ import '../models/app_config.dart';
 
 part 'movie.g.dart';
 
-@JsonSerializable(explicitToJson: true)
+@JsonSerializable()
 @entity
 class Movie {
   @primaryKey

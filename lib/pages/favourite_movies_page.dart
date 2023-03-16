@@ -1,6 +1,5 @@
 import 'dart:ui';
 // Packages
-import 'package:co2509_assignment/controllers/update_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
@@ -8,12 +7,16 @@ import 'package:get_it/get_it.dart';
 import '../models/movie.dart';
 import '../models/selected_category.dart';
 import '../models/favourite_movies_page_data.dart';
+import '../models/pages.dart';
 // Widgets
 import '../widgets/common_widgets.dart';
 import '../widgets/movie_box_remove_from_favourites.dart';
 import '../widgets/page_ui.dart';
 // Controller
 import '../controllers/favourite_movies_page_data_controller.dart';
+import '../controllers/app_manager.dart';
+// Services
+import '../services/connectivity_service.dart';
 
 final favouriteMoviesPageDataControllerProvider = StateNotifierProvider<
     FavouriteMoviesPageDataController, FavouriteMoviesPageData>(
@@ -36,15 +39,33 @@ class FavouriteMoviesPage extends ConsumerWidget {
   late CommonWidgets _commonWidgets;
   late BuildContext _context;
 
-  late UpdateManager _updateManager;
+  late AppManager _appManager;
+  late ConnectivityService _connectivityService;
 
+  late Function _onConnectivityEstablishedCallback;
+  late Function _onConnectivityLostCallback;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     _viewportWidth = MediaQuery.of(context).size.width;
     _viewportHeight = MediaQuery.of(context).size.height;
-    _commonWidgets = GetIt.instance.get<CommonWidgets>();
-    _updateManager = GetIt.instance.get<UpdateManager>();
     _context = context;
+
+    _commonWidgets = GetIt.instance.get<CommonWidgets>();
+    _appManager = GetIt.instance.get<AppManager>();
+    _connectivityService = GetIt.instance.get<ConnectivityService>();
+    _appManager.setCurrentPage(Pages.FavouritesPage);
+
+    // Callbacks
+    _onConnectivityEstablishedCallback = () {};
+    _onConnectivityLostCallback = () {
+      _appManager.setLandingPageAsDirty(true);
+      print('set landing page as dirty');
+    };
+
+    _connectivityService.setOnConnectivityEstablishedCallback(
+        _onConnectivityEstablishedCallback);
+    _connectivityService
+        .setOnConnectivityLostCallback(_onConnectivityLostCallback);
 
     // Monitor these providers
     // Controller
@@ -57,8 +78,8 @@ class FavouriteMoviesPage extends ConsumerWidget {
     // Check if there is an update available (for example: main page adds a movie to favourites,
     //  we need to reload this page and show the new movie)
     Function(void) _reloadCallback;
-    if (_updateManager.getFavouriteMoviesDirtyState()) {
-      _updateManager.setFavouriteMoviesAsDirty(false);
+    if (_appManager.getFavouriteMoviesDirtyState()) {
+      _appManager.setFavouriteMoviesAsDirty(false);
       _reloadCallback = (void _) {
         _favouriteMoviesPageDataController.reloadPage();
       };

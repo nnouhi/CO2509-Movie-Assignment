@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 // Models
+import '../controllers/app_manager.dart';
 import '../models/movie.dart';
 // Services
 import '../services/database_service.dart';
@@ -41,13 +42,21 @@ class MovieBoxRemoveFromFavourites extends StatelessWidget {
 
   // Movie poster (image) widget
   Widget _moviePosterWidget() {
+    ImageProvider imageProvider;
+    if (GetIt.instance.get<AppManager>().isConnected()) {
+      // Load image from network URL
+      imageProvider = NetworkImage(movie.getPosterUrl());
+    } else {
+      // Load image from local asset file
+      imageProvider = const AssetImage('assets/images/image_not_found.jpg');
+    }
     return Container(
       width: width * 0.35,
       height: height,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
         image: DecorationImage(
-          image: NetworkImage(movie.getPosterUrl()),
+          image: imageProvider,
         ),
       ),
     );

@@ -1,6 +1,6 @@
 import 'dart:ui';
 // Controllers
-import '../controllers/update_manager.dart';
+import '../controllers/app_manager.dart';
 import '../controllers/landing_page_data_controller.dart';
 // Models
 import '../models/landing_page_data.dart';
@@ -9,11 +9,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 // Widgets
+import '../models/pages.dart';
 import '../widgets/page_ui.dart';
 import '../widgets/common_widgets.dart';
 // Pages
 import '../pages/main_page.dart';
 import '../pages/favourite_movies_page.dart';
+// Services
+import '../services/connectivity_service.dart';
 
 final landingPageDataControllerProvider =
     StateNotifierProvider<LandingPageDataController, LandingPageData>(
@@ -31,11 +34,18 @@ class LandingPage extends ConsumerWidget {
 
   late BuildContext _context;
 
-  late UpdateManager _updateManager;
+  late AppManager _appManager;
+  late ConnectivityService _connectivityService;
+
+  late Function _onConnectivityEstablishedCallback;
+  late Function _onConnectivityLostCallback;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     _commonWidgets = GetIt.instance.get<CommonWidgets>();
-    _updateManager = GetIt.instance.get<UpdateManager>();
+    _appManager = GetIt.instance.get<AppManager>();
+    _connectivityService = GetIt.instance.get<ConnectivityService>();
+    _appManager.setCurrentPage(Pages.LandingPage);
 
     _viewportWidth = MediaQuery.of(context).size.width;
     _viewportHeight = MediaQuery.of(context).size.height;
@@ -48,13 +58,39 @@ class LandingPage extends ConsumerWidget {
     // Data from the controller
     _landingPageData = ref.watch(landingPageDataControllerProvider);
 
+    // Callbacks for when the connectivity changes
+    _onConnectivityEstablishedCallback = () {
+      _landingPageDataController.reloadPage();
+    };
+    _onConnectivityLostCallback = () {
+      _landingPageDataController.reloadPage();
+    };
+
+    // Set the callbacks
+    _connectivityService.setOnConnectivityEstablishedCallback(
+        _onConnectivityEstablishedCallback);
+    _connectivityService
+        .setOnConnectivityLostCallback(_onConnectivityLostCallback);
+
+    // Check if there is an update available (for example: main page adds a movie to favourites,
+    //  we need to reload this page and show the new movie)
+    Function(void) _reloadCallback;
+    if (_appManager.getLandingPageDirtyState()) {
+      _appManager.setLandingPageAsDirty(false);
+      _reloadCallback = (void _) {
+        _landingPageDataController.reloadPage();
+      };
+    } else {
+      _reloadCallback = (void _) {};
+    }
+
     // Build the UI
     return PageUI(
       _viewportWidth,
       _viewportHeight,
       _foregroundWidgets(),
       _landingPageData.isDarkTheme!,
-      (_) => null,
+      _reloadCallback,
     );
   }
 
@@ -84,6 +120,10 @@ class LandingPage extends ConsumerWidget {
   // }
 
   Widget _foregroundWidgets() {
+    bool hasNetworkConnection = _landingPageData.hasNetworkConnection!;
+    Widget hasNetworkConnectionWidget = (hasNetworkConnection == true)
+        ? Text('')
+        : _hasInternetConnectionWidget();
     return Center(
       child: Container(
         // color: Colors.red,
@@ -97,9 +137,28 @@ class LandingPage extends ConsumerWidget {
             _titleWidget(),
             _buttonsWidget(),
             _optionsWidget(),
+            hasNetworkConnectionWidget,
           ],
         ),
       ),
+    );
+  }
+
+  Widget _hasInternetConnectionWidget() {
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: const [
+        Text(
+          'No Network Connection',
+          style: TextStyle(color: Colors.yellow, fontSize: 20),
+        ),
+        Text(
+          'Features are limited',
+          style: TextStyle(color: Colors.yellow, fontSize: 16),
+        ),
+      ],
     );
   }
 
@@ -163,6 +222,10 @@ class LandingPage extends ConsumerWidget {
                   isDarkTheme: _landingPageData.isDarkTheme!,
                 ),
               ),
+            ).then(
+              (value) => {
+                _landingPageDataController.reloadPage(),
+              },
             ),
           ),
           _commonWidgets.getElevatedButtons(
@@ -175,6 +238,10 @@ class LandingPage extends ConsumerWidget {
                   isDarkTheme: _landingPageData.isDarkTheme!,
                 ),
               ),
+            ).then(
+              (value) => {
+                _landingPageDataController.reloadPage(),
+              },
             ),
           ),
         ],
@@ -286,7 +353,7 @@ class LandingPage extends ConsumerWidget {
             // Don't update the language if the selected language is the same as the current language
             if (selectedLanguage.toString() != _landingPageData.appLanguage)
               {
-                _updateManager.setMainPageAsDirty(true),
+                _appManager.setMainPageAsDirty(true),
                 _landingPageDataController
                     .updateAppLanguage(selectedLanguage.toString())
               }

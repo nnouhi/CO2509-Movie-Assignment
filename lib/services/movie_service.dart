@@ -82,6 +82,7 @@ class MovieService {
         },
       ).toList();
 
+      print('hey');
       return Tuple2(movies, data['total_pages']);
     } catch (e) {
       return const Tuple2([], 0);
