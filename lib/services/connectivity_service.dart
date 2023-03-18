@@ -60,6 +60,7 @@ class ConnectivityService {
   }
 
   void _onConnectivityChanged(ConnectivityResult currentResult) {
+    GetIt.instance.get<AppManager>().setConnectionState(currentResult);
     bool establishedConnection = _previousResult == ConnectivityResult.none &&
             currentResult == ConnectivityResult.wifi ||
         currentResult == ConnectivityResult.mobile;
@@ -75,7 +76,6 @@ class ConnectivityService {
     }
 
     _previousResult = currentResult;
-    GetIt.instance.get<AppManager>().setConnectionState(currentResult);
   }
 
   Future<bool> isConnected() async {

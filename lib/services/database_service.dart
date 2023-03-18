@@ -112,13 +112,17 @@ class DatabaseService {
       // Get all the favourite movies and add them to the map
       getFavouriteMovies().then(
         (movies) {
-          _favouriteMovies = Map.fromIterable(
-            movies,
-            key: (movie) => movie.id,
-            value: (movie) => movie,
-          );
-          for (var movie in movies) {
-            print(movie.title);
+          if (movies.isNotEmpty) {
+            _favouriteMovies = Map.fromIterable(
+              movies,
+              key: (movie) => movie.id,
+              value: (movie) => movie,
+            );
+            for (var movie in movies) {
+              print(movie.title);
+            }
+          } else {
+            _favouriteMovies = {};
           }
         },
       );

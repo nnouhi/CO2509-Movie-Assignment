@@ -20,9 +20,9 @@ class LandingPageDataController extends StateNotifier<LandingPageData> {
   }
 
   void _getLandingPageData() async {
+    bool hasNetworkConnection = GetIt.instance.get<AppManager>().isConnected();
     _isDarkTheme = await _firebaseService.getOnlineAppTheme();
     _appLanguage = await _firebaseService.getOnlineAppLanguage();
-    bool hasNetworkConnection = GetIt.instance.get<AppManager>().isConnected();
     state = state.copyWith(
       isDarkTheme: _isDarkTheme,
       appLanguage: _appLanguage,

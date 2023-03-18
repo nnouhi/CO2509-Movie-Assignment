@@ -71,6 +71,11 @@ class MainPage extends ConsumerWidget {
     _onConnectivityLostCallback = () {
       _appManager.setLandingPageAsDirty(true);
       print('set landing page as dirty');
+      _mainPageDataController.updateMoviesCategory(
+        _mainPageData.page!,
+        _mainPageData.searchCaterogy,
+        true,
+      );
     };
 
     // Set Callbacks

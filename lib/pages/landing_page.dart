@@ -120,14 +120,17 @@ class LandingPage extends ConsumerWidget {
   // }
 
   Widget _foregroundWidgets() {
-    bool hasNetworkConnection = _landingPageData.hasNetworkConnection!;
-    Widget hasNetworkConnectionWidget = (hasNetworkConnection == true)
-        ? Text('')
-        : _hasInternetConnectionWidget();
+    Widget hasNetworkConnectionWidget;
+    if (_appManager.isConnected()) {
+      hasNetworkConnectionWidget = Text('');
+    } else {
+      hasNetworkConnectionWidget = _hasInternetConnectionWidget();
+    }
+
     return Center(
       child: Container(
         // color: Colors.red,
-        padding: EdgeInsets.fromLTRB(0, _viewportHeight * 0.27, 0, 0),
+        padding: EdgeInsets.fromLTRB(0, _viewportHeight * 0.20, 0, 0),
         width: _viewportWidth * 0.95,
         child: Column(
           mainAxisSize: MainAxisSize.max,
@@ -152,11 +155,18 @@ class LandingPage extends ConsumerWidget {
       children: const [
         Text(
           'No Network Connection',
-          style: TextStyle(color: Colors.yellow, fontSize: 20),
+          style: TextStyle(
+              color: Colors.yellow, fontSize: 20, fontWeight: FontWeight.bold),
         ),
         Text(
           'Features are limited',
-          style: TextStyle(color: Colors.yellow, fontSize: 16),
+          style: TextStyle(
+              color: Colors.yellow, fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          '(Cannot rate a movie, you are allowed to view only the first page of each category)',
+          style: TextStyle(color: Colors.yellow, fontSize: 14),
+          textAlign: TextAlign.center,
         ),
       ],
     );
