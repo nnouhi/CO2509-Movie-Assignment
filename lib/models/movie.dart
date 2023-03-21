@@ -33,6 +33,12 @@ class Movie {
     required this.voteAverage, // Required field
   });
 
+  // Print all the attributes of the Movie object
+  @override
+  String toString() {
+    return toJson().toString();
+  }
+
   // Instantiate and return a new Movie object from a JSON object
   factory Movie.fromJson(Map<String, dynamic> json) => _$MovieFromJson(json);
 

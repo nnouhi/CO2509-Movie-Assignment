@@ -1,18 +1,23 @@
 // Models
-import 'package:flutter/cupertino.dart';
-
 import '../models/pages.dart';
 // Packages
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 class AppManager {
-  bool _favouriteMoviesUpdater = false;
-  bool _mainPageUpdater = false;
-  bool _landingPageUpdater = false;
-  Pages _currentPage = Pages.LandingPage;
-  bool _isConnected = false;
+  late bool _favouriteMoviesUpdater;
+  late bool _mainPageUpdater;
+  late bool _landingPageUpdater;
+  late Pages _currentPage;
+  late bool _isConnected;
 
-  AppManager();
+  AppManager() {
+    _favouriteMoviesUpdater = false;
+    _mainPageUpdater = false;
+    _landingPageUpdater = false;
+    _currentPage = Pages.LandingPage;
+    _isConnected = false;
+  }
+
   // Favourite Movies Page
   bool getFavouriteMoviesDirtyState() => _favouriteMoviesUpdater;
   void setFavouriteMoviesAsDirty(bool isDirty) =>
@@ -29,7 +34,6 @@ class AppManager {
   // Current Page
   Pages getCurrentPage() => _currentPage;
   void setCurrentPage(Pages page) => _currentPage = page;
-
   // Connection state
   bool isConnected() => _isConnected;
   void setConnectionState(ConnectivityResult connectivityResult) {

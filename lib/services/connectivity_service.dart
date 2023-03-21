@@ -10,14 +10,31 @@ import '../models/pages.dart';
 class ConnectivityService {
   final Connectivity _connectivity;
   late StreamSubscription<ConnectivityResult> _subscription;
+
   // Callbacks
   late Function _onConnectivityEstablishedCallbackFavouriteMovies;
+  Function get onConnectivityEstablishedCallbackFavouriteMovies =>
+      _onConnectivityEstablishedCallbackFavouriteMovies;
+
   late Function _onConnectivityEstablishedCallbackLandingPage;
+  Function get onConnectivityEstablishedCallbackLandingPage =>
+      _onConnectivityEstablishedCallbackLandingPage;
+
   late Function _onConnectivityEstablishedCallbackMainPage;
+  Function get onConnectivityEstablishedCallbackMainPage =>
+      _onConnectivityEstablishedCallbackMainPage;
 
   late Function _onConnectivityLostCallbackFavouriteMovies;
+  Function get onConnectivityLostCallbackFavouriteMovies =>
+      _onConnectivityLostCallbackFavouriteMovies;
+
   late Function _onConnectivityLostCallbackLandingPage;
+  Function get onConnectivityLostCallbackLandingPage =>
+      _onConnectivityLostCallbackLandingPage;
+
   late Function _onConnectivityLostCallbackMainPage;
+  Function get onConnectivityLostCallbackMainPage =>
+      _onConnectivityLostCallbackMainPage;
 
   ConnectivityResult _previousResult = ConnectivityResult.none;
   bool isInitialized = false;
@@ -26,7 +43,7 @@ class ConnectivityService {
 
   void subscribe() {
     _subscription =
-        _connectivity.onConnectivityChanged.listen(_onConnectivityChanged);
+        _connectivity.onConnectivityChanged.listen(onConnectivityChanged);
   }
 
   void setOnConnectivityEstablishedCallback(Function callback) {
@@ -59,7 +76,7 @@ class ConnectivityService {
     }
   }
 
-  void _onConnectivityChanged(ConnectivityResult currentResult) {
+  void onConnectivityChanged(ConnectivityResult currentResult) {
     GetIt.instance.get<AppManager>().setConnectionState(currentResult);
     bool establishedConnection = _previousResult == ConnectivityResult.none &&
             currentResult == ConnectivityResult.wifi ||
@@ -70,9 +87,9 @@ class ConnectivityService {
             currentResult == ConnectivityResult.none;
 
     if (establishedConnection) {
-      _handleEstablishedConnection();
+      handleEstablishedConnection();
     } else if (lostConnection) {
-      _handleLossOfConnection();
+      handleLossOfConnection();
     }
 
     _previousResult = currentResult;
@@ -83,7 +100,7 @@ class ConnectivityService {
     return connectivityResult != ConnectivityResult.none;
   }
 
-  void _handleEstablishedConnection() {
+  void handleEstablishedConnection() {
     Pages currentPage = GetIt.instance.get<AppManager>().getCurrentPage();
     switch (currentPage) {
       case Pages.LandingPage:
@@ -98,7 +115,7 @@ class ConnectivityService {
     }
   }
 
-  void _handleLossOfConnection() {
+  void handleLossOfConnection() {
     Pages currentPage = GetIt.instance.get<AppManager>().getCurrentPage();
     print('lost connection on page: $currentPage');
     switch (currentPage) {

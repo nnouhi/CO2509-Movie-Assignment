@@ -70,7 +70,22 @@ class MainPage extends ConsumerWidget {
     };
     _onConnectivityLostCallback = () {
       _appManager.setLandingPageAsDirty(true);
-      print('set landing page as dirty');
+      // Show connection lost dialog
+      showDialog<String>(
+        context: _context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('Connection lost'),
+          content: Text(
+            'No connection to the internet. You can only browse the first page of each category.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Okay'),
+              child: const Text('Okay'),
+            ),
+          ],
+        ),
+      );
       _mainPageDataController.updateMoviesCategory(
         _mainPageData.page!,
         _mainPageData.searchCaterogy,
@@ -341,7 +356,7 @@ class MainPage extends ConsumerWidget {
 
   Widget _moviesListViewWidget() {
     final List<Movie> movies = _mainPageData.displayedMovies!;
-    _sortMovies(movies, _mainPageData.sortOrder!);
+    sortMovies(movies, _mainPageData.sortOrder!);
     if (movies.length != 0) {
       return ListView.builder(
         itemCount: movies.length,
@@ -474,7 +489,7 @@ class MainPage extends ConsumerWidget {
         );
   }
 
-  void _sortMovies(List<Movie> list, String sortOder) {
+  void sortMovies(List<Movie> list, String sortOder) {
     switch (sortOder) {
       case DropdownCategories.sortAscending:
         sortMoviesByTitle(list, true);

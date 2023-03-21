@@ -33,6 +33,8 @@ class HTTPService {
           .get<SharedPreferencesService>()
           .getString('guestSessionId');
 
+      print(sessionId);
+
       // User didn't rate any movies yet, generate him a session id
       if (sessionId.isEmpty) {
         Response sessionReponse = await _getGuestSessionId(
