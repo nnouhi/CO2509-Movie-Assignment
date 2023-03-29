@@ -23,6 +23,9 @@ class LandingPageDataController extends StateNotifier<LandingPageData> {
     bool hasNetworkConnection = GetIt.instance.get<AppManager>().isConnected();
     _isDarkTheme = await _firebaseService.getOnlineAppTheme();
     _appLanguage = await _firebaseService.getOnlineAppLanguage();
+
+    GetIt.instance.get<AppManager>().setTheme(_isDarkTheme);
+
     state = state.copyWith(
       isDarkTheme: _isDarkTheme,
       appLanguage: _appLanguage,
@@ -33,9 +36,12 @@ class LandingPageDataController extends StateNotifier<LandingPageData> {
   void updateAppTheme(bool isDarkTheme) {
     _firebaseService.setOnlineAppTheme(
       isDarkTheme,
-      () => state = state.copyWith(
-        isDarkTheme: isDarkTheme,
-      ),
+      () => {
+        state = state.copyWith(
+          isDarkTheme: isDarkTheme,
+        ),
+        GetIt.instance.get<AppManager>().setTheme(isDarkTheme),
+      },
     );
   }
 

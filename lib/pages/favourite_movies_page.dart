@@ -159,20 +159,21 @@ class FavouriteMoviesPage extends ConsumerWidget {
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _backButtonWidget(),
-            const Text(
-              'My Favourites',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _backButtonWidget(),
+          const Text(
+            'My Favourites',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
-            _sortSelectionWidget(),
-          ]),
+          ),
+          _sortSelectionWidget(),
+        ],
+      ),
     );
   }
 

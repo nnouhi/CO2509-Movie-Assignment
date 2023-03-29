@@ -393,6 +393,7 @@ class MainPage extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 20,
                 ),
+                textAlign: TextAlign.center,
               ),
               CircularProgressIndicator(
                 backgroundColor: Colors.white,

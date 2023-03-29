@@ -33,6 +33,16 @@ class Movie {
     required this.voteAverage, // Required field
   });
 
+  Movie.initial()
+      : posterPath = '',
+        adult = false,
+        overview = '',
+        releaseDate = '',
+        id = 0,
+        originalLanguage = '',
+        title = '',
+        voteAverage = 0.0;
+
   // Print all the attributes of the Movie object
   @override
   String toString() {
@@ -48,7 +58,7 @@ class Movie {
     final GetIt getIt = GetIt.instance;
     final AppConfig appConfig = getIt.get<AppConfig>();
     // Handle cases where posterPath is null
-    if (posterPath == null) {
+    if (posterPath == null || posterPath!.isEmpty) {
       return appConfig.imageNotFoundUrl;
     } else {
       return '${appConfig.baseImageUrl}${posterPath}';

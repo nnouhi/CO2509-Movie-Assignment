@@ -46,6 +46,7 @@ dependencies:
   shared_preferences: ^2.0.18
   connectivity_plus: ^3.0.3
   uuid: ^3.0.7
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:

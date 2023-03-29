@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import '../controllers/app_manager.dart';
 import '../models/movie.dart';
 // Services
+import '../pages/more_info_page.dart';
 import '../services/database_service.dart';
 
 class MovieBoxRemoveFromFavourites extends StatelessWidget {
@@ -57,6 +58,7 @@ class MovieBoxRemoveFromFavourites extends StatelessWidget {
         borderRadius: BorderRadius.circular(10.0),
         image: DecorationImage(
           image: imageProvider,
+          fit: BoxFit.cover,
         ),
       ),
     );
@@ -102,11 +104,22 @@ class MovieBoxRemoveFromFavourites extends StatelessWidget {
           // Movie language, age, release date
           Container(
             padding: EdgeInsets.fromLTRB(0, height * 0.02, 0, 0),
-            child: Text(
-              '${movie.originalLanguage!.toUpperCase()} | R: ${movie.adult! ? '18+' : '13+'} | ${movie.releaseDate!}',
-              style: const TextStyle(
-                fontSize: 12,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  '${movie.originalLanguage?.toUpperCase() ?? "N/A"} | R: ${movie.adult == true ? '18+' : '13+'} | ${movie.releaseDate ?? "N/A"}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                  ),
+                ),
+                SizedBox(
+                  width: width * 0.06,
+                ),
+                _showMoreInfoWidget()
+              ],
             ),
           ),
           // Movie Overview
@@ -126,6 +139,36 @@ class MovieBoxRemoveFromFavourites extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _showMoreInfoWidget() {
+    if (GetIt.instance.get<AppManager>().isConnected()) {
+      return GestureDetector(
+        onTap: () => Navigator.push(
+          _context,
+          MaterialPageRoute(
+            builder: (context) => MoreInfoPage(
+              key: UniqueKey(),
+              isDarkTheme: getIt.get<AppManager>().isDarkTheme(),
+              movieId: movie.id!,
+            ),
+          ),
+        ).then(
+          (value) => {},
+        ),
+        child: const Text(
+          'More Info',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.red,
+            decoration: TextDecoration.underline,
+            decorationColor: Colors.red,
+          ),
+        ),
+      );
+    } else {
+      return Container();
+    }
   }
 
   // Favourite button widget

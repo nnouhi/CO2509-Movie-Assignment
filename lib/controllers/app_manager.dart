@@ -9,6 +9,7 @@ class AppManager {
   late bool _landingPageUpdater;
   late Pages _currentPage;
   late bool _isConnected;
+  late bool _darkTheme;
 
   AppManager() {
     _favouriteMoviesUpdater = false;
@@ -16,6 +17,7 @@ class AppManager {
     _landingPageUpdater = false;
     _currentPage = Pages.LandingPage;
     _isConnected = false;
+    _darkTheme = false;
   }
 
   // Favourite Movies Page
@@ -34,6 +36,7 @@ class AppManager {
   // Current Page
   Pages getCurrentPage() => _currentPage;
   void setCurrentPage(Pages page) => _currentPage = page;
+
   // Connection state
   bool isConnected() => _isConnected;
   void setConnectionState(ConnectivityResult connectivityResult) {
@@ -43,4 +46,8 @@ class AppManager {
       _isConnected = false;
     }
   }
+
+  // Dark Theme
+  bool isDarkTheme() => _darkTheme;
+  void setTheme(bool isDarkTheme) => _darkTheme = isDarkTheme;
 }

@@ -34,7 +34,6 @@ class MainPageDataController extends StateNotifier<MainPageData> {
       // If the user lost connection and he is not in page 1 we dont want to show him
       // the offline movies which are in page 1
       if (!connection && state.page != 1) {
-        print('hello');
         return;
       } else if (!connection && state.page == 1) {
         List<Movie> movies = [];

@@ -7,6 +7,7 @@ import '../services/http_service.dart';
 // Models
 import '../models/movie.dart';
 import '../models/endpoints.dart';
+import '../models/more_info_movie.dart';
 
 class MovieService {
   final GetIt getIt = GetIt.instance;
@@ -57,6 +58,26 @@ class MovieService {
     }
   }
 
+  // Return more info about a movie
+  Future<MoreInfoMovie> getMoreInfoAboutMovie(
+    int movieId,
+  ) async {
+    try {
+      Map<String, dynamic> additionalQueryParams = {};
+      String endpoint = '/movie/$movieId';
+
+      Response? response = await httpService.getRequest(
+        endpoint,
+        additionalQueryParams,
+      );
+
+      Map data = response.data;
+      return MoreInfoMovie.fromJson(data);
+    } catch (e) {
+      return MoreInfoMovie.initial();
+    }
+  }
+
   // Search for movies
   Future<Tuple2<List<Movie>, int>> getSearchedMovies(
     String query,
@@ -82,7 +103,6 @@ class MovieService {
         },
       ).toList();
 
-      print('hey');
       return Tuple2(movies, data['total_pages']);
     } catch (e) {
       return const Tuple2([], 0);
