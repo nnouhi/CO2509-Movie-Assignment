@@ -123,27 +123,30 @@ class FavouriteMoviesPage extends ConsumerWidget {
 
   // Search bar and movies list view widget
   Widget _foregroundWidgets() {
-    return Center(
-      child: Container(
-        // color: Colors.red,
-        padding: EdgeInsets.fromLTRB(0, _viewportHeight! * 0.08, 0, 0),
-        width: _viewportWidth! * 0.95,
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Top Bar
-            _topBarWidget(),
-            // Movies list view
-            Container(
-              margin: EdgeInsets.fromLTRB(0, _viewportHeight! * 0.05, 0, 0),
-              // color: Colors.black,
-              height: _viewportHeight! * 0.75,
-              padding: EdgeInsets.symmetric(vertical: _viewportHeight! * 0.01),
-              child: _moviesListViewWidget(),
-            )
-          ],
+    return SingleChildScrollView(
+      child: Center(
+        child: Container(
+          // color: Colors.red,
+          padding: EdgeInsets.fromLTRB(0, _viewportHeight! * 0.08, 0, 0),
+          // width: _viewportWidth! * 0.95,
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Top Bar
+              _topBarWidget(),
+              // Movies list view
+              Container(
+                margin: EdgeInsets.fromLTRB(0, _viewportHeight! * 0.05, 0, 0),
+                // color: Colors.black,
+                height: _viewportHeight! * 0.75,
+                padding:
+                    EdgeInsets.symmetric(vertical: _viewportHeight! * 0.01),
+                child: _moviesListViewWidget(),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -151,7 +154,7 @@ class FavouriteMoviesPage extends ConsumerWidget {
 
   Widget _topBarWidget() {
     return Container(
-      height: _viewportHeight! * 0.08,
+      // height: _viewportHeight! * 0.08,
       padding: EdgeInsets.fromLTRB(
           _viewportWidth! * 0.02, 0, _viewportWidth! * 0.015, 0),
       decoration: BoxDecoration(
@@ -180,8 +183,8 @@ class FavouriteMoviesPage extends ConsumerWidget {
   Widget _backButtonWidget() {
     return // Back button
         Container(
-      width: _viewportWidth! * 0.20,
-      height: _viewportHeight! * 0.05,
+      // width: _viewportWidth! * 0.20,
+      // height: _viewportHeight! * 0.05,
       child: _commonWidgets.getElevatedButtons(
         'Back',
         () => {

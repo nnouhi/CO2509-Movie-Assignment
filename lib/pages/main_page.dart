@@ -161,28 +161,32 @@ class MainPage extends ConsumerWidget {
 
   // Search bar and movies list view widget
   Widget _foregroundWidgets() {
-    return Center(
-      child: Container(
-        // color: Colors.red,
-        padding: EdgeInsets.fromLTRB(0, _viewportHeight! * 0.08, 0, 0),
-        width: _viewportWidth! * 0.95,
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Search bar
-            _searchBarWidget(),
-            // Page buttons
-            _navigationButtonsWidget(),
-            // Movies list view
-            Container(
-              // color: Colors.black,
-              height: _viewportHeight! * 0.75,
-              padding: EdgeInsets.symmetric(vertical: _viewportHeight! * 0.01),
-              child: _moviesListViewWidget(),
-            )
-          ],
+    return SingleChildScrollView(
+      child: Center(
+        child: Container(
+          // color: Colors.yellow,
+          padding: EdgeInsets.fromLTRB(0, _viewportHeight! * 0.08, 0, 0),
+          // width: double.maxFinite,
+          // height: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Search bar
+              _searchBarWidget(),
+              // Page buttons
+              _navigationButtonsWidget(),
+              // Movies list view
+              Container(
+                // color: Colors.red,
+                height: _viewportHeight! * 0.75,
+                padding:
+                    EdgeInsets.symmetric(vertical: _viewportHeight! * 0.01),
+                child: _moviesListViewWidget(),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -233,14 +237,16 @@ class MainPage extends ConsumerWidget {
   // Search bar widgets
   Widget _searchBarWidget() {
     return Container(
-      height: _viewportHeight! * 0.08,
+      // height: _viewportHeight! * 0.08,
+      padding: EdgeInsets.fromLTRB(
+          _viewportWidth! * 0.02, 0, _viewportWidth! * 0.015, 0),
       decoration: BoxDecoration(
         color: Colors.black54,
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: Row(
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _backButtonWidget(),
@@ -253,8 +259,8 @@ class MainPage extends ConsumerWidget {
   Widget _backButtonWidget() {
     return // Back button
         Container(
-      width: _viewportWidth! * 0.20,
-      height: _viewportHeight! * 0.05,
+      // width: _viewportWidth! * 0.20,
+      // height: _viewportHeight! * 0.05,
       child: _commonWidgets.getElevatedButtons(
         'Back',
         () => {
@@ -270,7 +276,7 @@ class MainPage extends ConsumerWidget {
 
     return Container(
       width: _viewportWidth! * 0.40,
-      height: _viewportHeight! * 0.05,
+      // height: _viewportHeight! * 0.05,
       child: TextField(
         controller: _searchController,
         onSubmitted: (queryText) => {
@@ -281,7 +287,9 @@ class MainPage extends ConsumerWidget {
               )
             }
         },
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(
+          color: Colors.white,
+        ),
         decoration: InputDecoration(
             focusedBorder: _border,
             border: _border,

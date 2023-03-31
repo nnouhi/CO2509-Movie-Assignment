@@ -32,7 +32,7 @@ class MovieBoxRemoveFromFavourites extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _moviePosterWidget(),
           _movieInfoWidget(),
@@ -58,7 +58,7 @@ class MovieBoxRemoveFromFavourites extends StatelessWidget {
         borderRadius: BorderRadius.circular(10.0),
         image: DecorationImage(
           image: imageProvider,
-          fit: BoxFit.cover,
+          fit: BoxFit.fill,
         ),
       ),
     );
@@ -67,7 +67,7 @@ class MovieBoxRemoveFromFavourites extends StatelessWidget {
   // General movie info widget
   Widget _movieInfoWidget() {
     return Container(
-      height: height,
+      // height: height,
       width: width * 0.75,
       child: Column(
         mainAxisSize: MainAxisSize.max,

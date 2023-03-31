@@ -132,10 +132,7 @@ class LandingPage extends ConsumerWidget {
         // color: Colors.red,
         padding: EdgeInsets.fromLTRB(0, _viewportHeight * 0.20, 0, 0),
         width: _viewportWidth * 0.95,
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: ListView(
           children: [
             _titleWidget(),
             _buttonsWidget(),

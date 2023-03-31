@@ -97,23 +97,6 @@ class MoreInfoPage extends ConsumerWidget {
     // Data from the controller
     _moreInfoPageData = ref.watch(moreInfoPageDataControllerProvider);
 
-    // Check if there was an update and reload the page
-    // For example if the user changed language from landing page
-    // Function(void) _reloadCallback;
-    // if (_appManager.getMainPageDirtyState()) {
-    //   _appManager.setMainPageAsDirty(false);
-    //   _reloadCallback = (void _) {
-    //     _moreInfoPageDataController.updateMoviesCategory(
-    //       _moreInfoPageData.page!,
-    //       _moreInfoPageData.searchCaterogy,
-    //       true,
-    //     );
-    //   };
-    // } else {
-    //   _reloadCallback = (void _) {};
-    // }
-    // _moreInfoPageDataController.getMoreInfoAboutMovie(movieId);
-
     return PageUI(
       _viewportWidth!,
       _viewportHeight!,
@@ -131,7 +114,7 @@ class MoreInfoPage extends ConsumerWidget {
         child: Container(
           // color: Colors.red,
           padding: EdgeInsets.fromLTRB(0, _viewportHeight! * 0.08, 0, 0),
-          width: _viewportWidth! * 0.95,
+          // width: _viewportWidth! * 0.95,
           child: Column(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -142,7 +125,7 @@ class MoreInfoPage extends ConsumerWidget {
               // Movies list view
               Container(
                 // color: Colors.red,
-                height: _viewportHeight! * 0.80,
+                height: _viewportHeight! * 0.75,
                 padding:
                     EdgeInsets.symmetric(vertical: _viewportHeight! * 0.01),
                 child: _movieBoxWidget(),
@@ -178,7 +161,7 @@ class MoreInfoPage extends ConsumerWidget {
 
   Widget _topBarWidget() {
     return Container(
-      height: _viewportHeight! * 0.08,
+      // height: _viewportHeight! * 0.08,
       padding: EdgeInsets.fromLTRB(
           _viewportWidth! * 0.02, 0, _viewportWidth! * 0.015, 0),
       decoration: BoxDecoration(
@@ -187,16 +170,19 @@ class MoreInfoPage extends ConsumerWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _backButtonWidget(),
-          SizedBox(width: _viewportWidth! * 0.1),
-          const Text(
-            'Extra Information',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: Center(
+              child: const Text(
+                'Extra Information',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ],
@@ -228,114 +214,118 @@ class MoreInfoPage extends ConsumerWidget {
       imageProvider = const AssetImage('assets/images/image_not_found.jpg');
     }
     return Container(
-      width: _viewportWidth! * 0.7,
+      width: _viewportWidth! * 0.75,
       height: _viewportHeight! * 0.25,
-      padding: EdgeInsets.symmetric(horizontal: _viewportWidth! * 0.02),
+      padding: EdgeInsets.symmetric(horizontal: _viewportWidth! * 0.04),
       // color: Colors.red,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
         image: DecorationImage(
           image: imageProvider,
-          fit: BoxFit.fill,
+          fit: BoxFit.fitHeight,
         ),
       ),
     );
   }
 
   Widget _movieInfoWidget() {
-    return Container(
-      width: _viewportWidth! * 0.9,
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Text(
-            'Overview',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              decoration: TextDecoration.underline,
-              decorationThickness: 2,
-            ),
-            textAlign: TextAlign.center,
+    return Flexible(
+      child: SingleChildScrollView(
+        child: Container(
+          width: _viewportWidth! * 0.9,
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Text(
+                'Overview',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                  decorationThickness: 2,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: _viewportHeight! * 0.02),
+              Text(
+                _movie!.overview ?? 'N/A',
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+                maxLines: 7,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: _viewportHeight! * 0.02),
+              const Text(
+                'Original Language | Age Rating | Release Date | Vote Average',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                  decorationThickness: 2,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: _viewportHeight! * 0.02),
+              Text(
+                '${_movie?.originalLanguage?.toUpperCase() ?? "N/A"} | R: ${_movie?.adult == true ? '18+' : '13+'} | ${_movie?.releaseDate ?? "N/A"} | ${_movie?.voteAverage ?? "N/A"}',
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.justify,
+              ),
+              SizedBox(height: _viewportHeight! * 0.02),
+              const Text(
+                'Genres',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                  decorationThickness: 2,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: _viewportHeight! * 0.02),
+              Text(
+                _movie!.getGenres(),
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.justify,
+              ),
+              SizedBox(height: _viewportHeight! * 0.02),
+              const Text(
+                'Runtime | Budget | Revenue ',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                  decorationThickness: 2,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: _viewportHeight! * 0.02),
+              Text(
+                '${_movie!.getRuntime()} | ${_movie!.getInCurrencyFormat(_movie!.budget!)} | ${_movie!.getInCurrencyFormat(_movie!.revenue!)}',
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.justify,
+              ),
+            ],
           ),
-          SizedBox(height: _viewportHeight! * 0.02),
-          Text(
-            _movie!.overview ?? 'N/A',
-            style: const TextStyle(
-              fontSize: 16,
-            ),
-            maxLines: 7,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: _viewportHeight! * 0.02),
-          const Text(
-            'Original Language | Age Rating | Release Date | Vote Average',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              decoration: TextDecoration.underline,
-              decorationThickness: 2,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: _viewportHeight! * 0.02),
-          Text(
-            '${_movie?.originalLanguage?.toUpperCase() ?? "N/A"} | R: ${_movie?.adult == true ? '18+' : '13+'} | ${_movie?.releaseDate ?? "N/A"} | ${_movie?.voteAverage ?? "N/A"}',
-            style: const TextStyle(
-              fontSize: 16,
-            ),
-            textAlign: TextAlign.justify,
-          ),
-          SizedBox(height: _viewportHeight! * 0.02),
-          const Text(
-            'Genres',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              decoration: TextDecoration.underline,
-              decorationThickness: 2,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: _viewportHeight! * 0.02),
-          Text(
-            _movie!.getGenres(),
-            style: const TextStyle(
-              fontSize: 16,
-            ),
-            textAlign: TextAlign.justify,
-          ),
-          SizedBox(height: _viewportHeight! * 0.02),
-          const Text(
-            'Runtime | Budget | Revenue ',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              decoration: TextDecoration.underline,
-              decorationThickness: 2,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: _viewportHeight! * 0.02),
-          Text(
-            '${_movie!.getRuntime()} | ${_movie!.getInCurrencyFormat(_movie!.budget!)} | ${_movie!.getInCurrencyFormat(_movie!.revenue!)}',
-            style: const TextStyle(
-              fontSize: 16,
-            ),
-            textAlign: TextAlign.justify,
-          ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _backButtonWidget() {
     return Container(
-      width: _viewportWidth! * 0.20,
-      height: _viewportHeight! * 0.05,
+      // width: _viewportWidth! * 0.20,
+      // height: _viewportHeight! * 0.05,
       child: _commonWidgets.getElevatedButtons(
         'Back',
         () => {

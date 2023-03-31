@@ -32,10 +32,10 @@ class MovieBoxAddToFavourites extends StatelessWidget {
   Widget build(BuildContext context) {
     _context = context;
     return Container(
+      // color: Colors.red,
       child: Row(
-        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _moviePosterWidget(),
           _movieInfoWidget(),
@@ -54,14 +54,16 @@ class MovieBoxAddToFavourites extends StatelessWidget {
       // Load image from local asset file
       imageProvider = const AssetImage('assets/images/image_not_found.jpg');
     }
-    return Container(
-      width: width * 0.35,
-      height: height,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        image: DecorationImage(
-          image: imageProvider,
-          fit: BoxFit.cover,
+    return Center(
+      child: Container(
+        width: width * 0.35,
+        height: height,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10.0),
+          image: DecorationImage(
+            image: imageProvider,
+            fit: BoxFit.fill,
+          ),
         ),
       ),
     );
@@ -88,7 +90,7 @@ class MovieBoxAddToFavourites extends StatelessWidget {
     }
 
     return Container(
-      height: height,
+      // height: height,
       width: width * 0.75,
       child: Column(
         mainAxisSize: MainAxisSize.max,
