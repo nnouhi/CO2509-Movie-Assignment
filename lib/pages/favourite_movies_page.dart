@@ -127,7 +127,8 @@ class FavouriteMoviesPage extends ConsumerWidget {
       child: Center(
         child: Container(
           // color: Colors.red,
-          padding: EdgeInsets.fromLTRB(0, _viewportHeight! * 0.08, 0, 0),
+          padding: EdgeInsets.fromLTRB(_viewportWidth! * 0.02,
+              _viewportHeight! * 0.08, _viewportWidth! * 0.02, 0),
           // width: _viewportWidth! * 0.95,
           child: Column(
             mainAxisSize: MainAxisSize.max,

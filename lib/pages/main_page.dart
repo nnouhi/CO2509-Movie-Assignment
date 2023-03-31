@@ -165,7 +165,8 @@ class MainPage extends ConsumerWidget {
       child: Center(
         child: Container(
           // color: Colors.yellow,
-          padding: EdgeInsets.fromLTRB(0, _viewportHeight! * 0.08, 0, 0),
+          padding: EdgeInsets.fromLTRB(_viewportWidth! * 0.02,
+              _viewportHeight! * 0.08, _viewportWidth! * 0.02, 0),
           // width: double.maxFinite,
           // height: double.maxFinite,
           child: Column(
@@ -519,17 +520,21 @@ class MainPage extends ConsumerWidget {
 
   void sortMoviesByTitle(List<Movie> list, bool ascending) {
     if (ascending) {
-      list.sort((a, b) {
-        return a.title!.toLowerCase().compareTo(
-              b.title!.toLowerCase(),
-            );
-      });
+      list.sort(
+        (a, b) {
+          return a.title!.toLowerCase().compareTo(
+                b.title!.toLowerCase(),
+              );
+        },
+      );
     } else {
-      list.sort((a, b) {
-        return b.title!.toLowerCase().compareTo(
-              a.title!.toLowerCase(),
-            );
-      });
+      list.sort(
+        (a, b) {
+          return b.title!.toLowerCase().compareTo(
+                a.title!.toLowerCase(),
+              );
+        },
+      );
     }
   }
 
